@@ -15,10 +15,9 @@
  */
 package net.unknowndomain.satisj;
 
-import java.util.TimeZone;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 import okhttp3.Response;
-import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  *
@@ -27,9 +26,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
  */
 public abstract class SatisApiCall<T extends SatisJsonObject> {
     
+    @JsonIgnore
     private final String idempotencyKey = UUID.randomUUID().toString();
-    
-    protected static final FastDateFormat DATE_FORMATTER = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ", TimeZone.getTimeZone("UTC"));
     
     public String getIdempotencyKey()
     {
