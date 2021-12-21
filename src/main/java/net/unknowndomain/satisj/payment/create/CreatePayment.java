@@ -15,6 +15,11 @@
  */
 package net.unknowndomain.satisj.payment.create;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
@@ -29,9 +34,31 @@ import okhttp3.Response;
  */
 public class CreatePayment extends SatisApiCall<Payment> {
     
-    private final BigDecimal amount;
+    @JsonProperty("flow")
+    private final String flow;
+    @JsonProperty("amount_unit")
+    private final Long amountUnit;
+    @JsonProperty("currency")
+    private final String currency;
+    @JsonProperty("pre_authorized_payments_token")
+    private final String preAuthorizedPaymentsToken;
+    @JsonProperty("parent_payment_uid")
+    private final String parentPaymentId;
+    @JsonProperty("consumer_uid")
+    private final String consumerId;
+    @JsonProperty("external_code")
+    private final String externalCode;
+    @JsonProperty("callback_url")
+    private final String callbackUrl;
+    @JsonProperty("redirect_url")
+    private final String redirectUrl;
+    @JsonProperty("metadata")
+    private final Map<String, String> metadata;
+    @JsonProperty("expiration_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "UTC")
     private final Date expirationDate;
-    private final Request req;
+    @JsonIgnore
+    private final BigDecimal amount;
     
     protected CreatePayment(
             String flow, 
@@ -49,104 +76,51 @@ public class CreatePayment extends SatisApiCall<Payment> {
     {
         this.amount = amount;
         this.expirationDate = expirationDate;
-        this.req = new Request();
-        this.req.flow = flow;
-        this.req.currency = currency;
-        this.req.pre_authorized_payments_token = preAuthorizedPaymentsToken;
-        this.req.parent_payment_uid = parentPaymentUid;
-        this.req.consumer_uid = consumerUid;
-        this.req.external_code = externalCode;
-        this.req.callback_url = callbackUrl;
-        this.req.redirect_url = redirectUrl;
-        this.req.amount_unit = amount.unscaledValue().longValue();
-        this.req.expiration_date = DATE_FORMATTER.format(expirationDate);
-        this.req.metadata = Collections.unmodifiableMap(metadata);
+        this.flow = flow;
+        this.currency = currency;
+        this.preAuthorizedPaymentsToken = preAuthorizedPaymentsToken;
+        this.parentPaymentId = parentPaymentUid;
+        this.consumerId = consumerUid;
+        this.externalCode = externalCode;
+        this.callbackUrl = callbackUrl;
+        this.redirectUrl = redirectUrl;
+        this.amountUnit = amount.unscaledValue().longValue();
+        this.metadata = Collections.unmodifiableMap(metadata);
     }
     
     @Override
+    @JsonIgnore
     protected String getBody() {
-//        Moshi moshi = new Moshi.Builder().build();
-//        JsonAdapter<Request> adapter = moshi.adapter(Request.class);
-//        return adapter.toJson(req);
-        return "";
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = "";
+        try
+        {
+            body = objectMapper.writeValueAsString(this);
+        }
+        catch (JsonProcessingException ex)
+        {
+        }
+        return body;
     }
 
     @Override
+    @JsonIgnore
     protected String getMethod() {
         return "POST";
     }
 
     @Override
+    @JsonIgnore
     protected String getRelativeEndpoint() {
         return "/v1/payments";
     }
 
     @Override
+    @JsonIgnore
     protected Payment parseResponse(Response response)
     {
         response.body();
         return null;
-    }
-    
-    private class Request {
-        
-        private String flow;
-        private Long amount_unit;
-        private String currency;
-        private String pre_authorized_payments_token;
-        private String parent_payment_uid;
-        private String consumer_uid;
-        private String external_code;
-        private String callback_url;
-        private String redirect_url;
-        private String expiration_date;
-        private Map<String, String> metadata;
-        
-    }
-
-    public String getFlow()
-    {
-        return req.flow;
-    }
-
-    public BigDecimal getAmount()
-    {
-        return amount;
-    }
-
-    public String getCurrency()
-    {
-        return req.currency;
-    }
-
-    public String getPreAuthorizedPaymentsToken()
-    {
-        return req.pre_authorized_payments_token;
-    }
-
-    public String getParentPaymentUid()
-    {
-        return req.parent_payment_uid;
-    }
-
-    public String getConsumerUid()
-    {
-        return req.consumer_uid;
-    }
-
-    public String getExternalCode()
-    {
-        return req.external_code;
-    }
-
-    public String getCallbackUrl()
-    {
-        return req.callback_url;
-    }
-
-    public String getRedirectUrl()
-    {
-        return req.redirect_url;
     }
 
     public Date getExpirationDate()
@@ -154,9 +128,59 @@ public class CreatePayment extends SatisApiCall<Payment> {
         return expirationDate;
     }
 
+    public String getFlow()
+    {
+        return flow;
+    }
+
+    public Long getAmountUnit()
+    {
+        return amountUnit;
+    }
+
+    public String getCurrency()
+    {
+        return currency;
+    }
+
+    public String getPreAuthorizedPaymentsToken()
+    {
+        return preAuthorizedPaymentsToken;
+    }
+
+    public String getParentPaymentId()
+    {
+        return parentPaymentId;
+    }
+
+    public String getConsumerId()
+    {
+        return consumerId;
+    }
+
+    public String getExternalCode()
+    {
+        return externalCode;
+    }
+
+    public String getCallbackUrl()
+    {
+        return callbackUrl;
+    }
+
+    public String getRedirectUrl()
+    {
+        return redirectUrl;
+    }
+
     public Map<String, String> getMetadata()
     {
-        return req.metadata;
+        return metadata;
+    }
+
+    public BigDecimal getAmount()
+    {
+        return amount;
     }
     
 }

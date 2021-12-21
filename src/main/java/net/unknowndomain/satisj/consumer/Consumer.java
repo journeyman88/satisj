@@ -15,6 +15,7 @@
  */
 package net.unknowndomain.satisj.consumer;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import net.unknowndomain.satisj.SatisJsonObject;
 
 /**
@@ -23,6 +24,7 @@ import net.unknowndomain.satisj.SatisJsonObject;
  */
 public class Consumer extends SatisJsonObject
 {
+    @JsonProperty("id")
     private String id;
     
     public Consumer()
