@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -35,6 +36,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
@@ -143,9 +146,9 @@ public class SatisAuth {
             Path pubKey = directory.resolve("pubKey.pem");
             Path privKey = directory.resolve("privKey.pem");
             Path keyTxt = directory.resolve("keyId.txt");
-            Files.writeString(pubKey, keyToPem(publicKey), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            Files.writeString(privKey, keyToPem(privateKey), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            Files.writeString(keyTxt, keyId, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(pubKey, keyToPem(publicKey).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(privKey, keyToPem(privateKey).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(keyTxt, keyId.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         }
         catch (IOException ex)
         {
@@ -192,9 +195,9 @@ public class SatisAuth {
         Path keyTxt = directory.resolve("keyId.txt");
         try 
         {
-            PrivateKey privKey = pemToPrivKey(Files.readString(privPem));
-            PublicKey pubKey = pemToPubKey(Files.readString(pubPem));
-            String keyId = Files.readString(keyTxt);
+            PrivateKey privKey = pemToPrivKey(new String(Files.readAllBytes(privPem), StandardCharsets.UTF_8));
+            PublicKey pubKey = pemToPubKey(new String(Files.readAllBytes(pubPem), StandardCharsets.UTF_8));
+            String keyId = new String(Files.readAllBytes(keyTxt), StandardCharsets.UTF_8);
             return new SatisAuth(privKey, pubKey, keyId);
         }
         catch (IOException ex)
