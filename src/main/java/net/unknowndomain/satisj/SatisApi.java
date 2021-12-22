@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
 import net.unknowndomain.satisj.auth.SatisAuth;
 import net.unknowndomain.satisj.authorization.api.CreateAuthorizationBuilder;
 import net.unknowndomain.satisj.authorization.api.GetAuthorizationBuilder;
@@ -62,13 +64,26 @@ public class SatisApi {
     private final OkHttpClient client = new OkHttpClient();
     private final static Logger LOGGER = LoggerFactory.getLogger(SatisApi.class);
     private final static MediaType JSON = MediaType.get("application/json; charset=utf-8");
-    private final static String USER_AGENT = "StatisJ/1.0.0-SNAPSHOT";
+    private final static String USER_AGENT;
     private String platformName;
     private String platformVersion;
     private String appName;
     private String appVersion;
     private String deviceType;
     private String trackingCode;
+    
+    static {
+        Properties props = new Properties();
+        try (InputStream inStream = SatisApi.class.getResourceAsStream("/net/unknowndomain/satisj/version.properties"))
+        {
+            props.load(inStream);
+        } 
+        catch (IOException ex)
+        {
+            LOGGER.error(null, ex);
+        }
+        USER_AGENT = props.getProperty("library.name", "StatisJ") + "/" + props.getProperty("library.version", "0.0.0");
+    }
     
     public SatisApi(Environment env, SatisAuth auth){
         this.auth = auth;
