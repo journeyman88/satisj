@@ -32,8 +32,8 @@ jobs:
             <toolchain>
               <type>jdk</type>
                 <provides>
-                  <version>11</version>
-                  <vendor>adopt</vendor>
+                  <version>1.8</version>
+                  <vendor>temurin</vendor>
                 </provides>
                 <configuration>
                   <jdkHome>${{ env.JAVA_HOME }}</jdkHome>
