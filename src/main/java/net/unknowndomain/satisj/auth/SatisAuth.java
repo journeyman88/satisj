@@ -247,6 +247,15 @@ public class SatisAuth {
                     .post(body)
                     .build();
             Response resp = client.newCall(request).execute();
+            switch(resp.code())
+            {
+                case 400:
+                    throw new SatisAuthException("Invalid RSA Key");
+                case 403:
+                    throw new SatisAuthException("Token already paired");
+                case 404:
+                    throw new SatisAuthException("Device token not found");
+            }
             SatisAuthResp keyWrapper = objectMapper.readValue(resp.body().string(), SatisAuthResp.class);
             return new SatisAuth(priv, pub, keyWrapper.key_id);
         } 
