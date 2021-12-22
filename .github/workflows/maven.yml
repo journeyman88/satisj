@@ -36,7 +36,7 @@ jobs:
                   <vendor>adopt</vendor>
                 </provides>
                 <configuration>
-                  <jdkHome>${{ env.JDK_HOME }}</jdkHome>
+                  <jdkHome>${{ env.JAVA_HOME }}</jdkHome>
                 </configuration>
             </toolchain>
           </toolchains>
