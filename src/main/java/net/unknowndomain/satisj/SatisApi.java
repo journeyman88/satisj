@@ -47,6 +47,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,13 @@ public class SatisApi {
     private final OkHttpClient client = new OkHttpClient();
     private final static Logger LOGGER = LoggerFactory.getLogger(SatisApi.class);
     private final static MediaType JSON = MediaType.get("application/json; charset=utf-8");
+    private final static String USER_AGENT = "StatisJ/1.0.0-SNAPSHOT";
+    private String platformName;
+    private String platformVersion;
+    private String appName;
+    private String appVersion;
+    private String deviceType;
+    private String trackingCode;
     
     public SatisApi(Environment env, SatisAuth auth){
         this.auth = auth;
@@ -97,11 +105,36 @@ public class SatisApi {
             String signature = Base64.encodeBase64String(sig.sign());
             Request.Builder bld = new Request.Builder();
             bld.url(env.getEndpoint() + call.getRelativeEndpoint());
+            bld.addHeader("User-Agent", USER_AGENT);
             bld.addHeader("Host", env.getEndpoint().getHost());
             bld.addHeader("Date", Tools.SIGN_DATE_FORMAT.format(data));
             bld.addHeader("Digest", "SHA-256="+digest);
             bld.addHeader("Authorization", String.format("Signature keyId=\"%s\", algorithm=\"rsa-sha256\", headers=\"(request-target) host date digest\", signature=\"%s\"", auth.getKeyId(), signature));
             bld.addHeader("Idempotency-Key", call.getIdempotencyKey());
+            if (StringUtils.isNotBlank(platformName))
+            {
+                bld.addHeader("x-satispay-os", platformName);
+            }
+            if (StringUtils.isNotBlank(platformVersion))
+            {
+                bld.addHeader("x-satispay-osv", platformVersion);
+            }
+            if (StringUtils.isNotBlank(appName))
+            {
+                bld.addHeader("x-satispay-appn", appName);
+            }
+            if (StringUtils.isNotBlank(appVersion))
+            {
+                bld.addHeader("x-satispay-appv", appVersion);
+            }
+            if (StringUtils.isNotBlank(appName))
+            {
+                bld.addHeader("x-satispay-devicetype", deviceType);
+            }
+            if (StringUtils.isNotBlank(trackingCode))
+            {
+                bld.addHeader("x-satispay-tracking-code", trackingCode);
+            }
             RequestBody reqBody = RequestBody.create(body, JSON);
             switch(call.getMethod())
             {
@@ -215,5 +248,65 @@ public class SatisApi {
             }
             return amount.movePointRight(CURRENCY_SHIFT.get(curr)).longValue();
         }
+    }
+
+    public String getPlatformName()
+    {
+        return platformName;
+    }
+
+    public void setPlatformName(String platformName)
+    {
+        this.platformName = platformName;
+    }
+
+    public String getPlatformVersion()
+    {
+        return platformVersion;
+    }
+
+    public void setPlatformVersion(String platformVersion)
+    {
+        this.platformVersion = platformVersion;
+    }
+
+    public String getAppName()
+    {
+        return appName;
+    }
+
+    public void setAppName(String appName)
+    {
+        this.appName = appName;
+    }
+
+    public String getAppVersion()
+    {
+        return appVersion;
+    }
+
+    public void setAppVersion(String appVersion)
+    {
+        this.appVersion = appVersion;
+    }
+
+    public String getDeviceType()
+    {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType)
+    {
+        this.deviceType = deviceType;
+    }
+
+    public String getTrackingCode()
+    {
+        return trackingCode;
+    }
+
+    public void setTrackingCode(String trackingCode)
+    {
+        this.trackingCode = trackingCode;
     }
 }
