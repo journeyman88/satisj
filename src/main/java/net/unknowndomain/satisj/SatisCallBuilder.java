@@ -22,5 +22,9 @@ package net.unknowndomain.satisj;
  */
 public interface SatisCallBuilder<T extends SatisApiCall>
 {
+    /**
+     * Build the unmodifiable SatisApiCall object.
+     * @return 
+     */
     T build();
 }

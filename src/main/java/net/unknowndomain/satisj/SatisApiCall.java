@@ -16,8 +16,8 @@
 package net.unknowndomain.satisj;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.InputStream;
 import java.util.UUID;
-import okhttp3.Response;
 
 /**
  *
@@ -37,6 +37,6 @@ public abstract class SatisApiCall<T extends SatisJsonObject> {
     protected abstract String getBody();
     protected abstract String getMethod();
     protected abstract String getRelativeEndpoint();
-    protected abstract T parseResponse(Response response);
+    protected abstract T parseResponse(InputStream response);
     
 }

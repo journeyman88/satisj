@@ -15,7 +15,6 @@
  */
 package net.unknowndomain.satisj.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -29,15 +28,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import net.unknowndomain.satisj.Environment;
+import net.unknowndomain.satisj.SatisApi;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
@@ -123,7 +123,7 @@ public class SatisAuth {
         return null;
     }
     
-    public void saveToDir(Path directory)
+    public void saveToDir(Path directory) throws SatisAuthException
     {
         if (directory == null)
         {
@@ -157,7 +157,7 @@ public class SatisAuth {
         }
     }
     
-    public void saveToProperties(Properties props)
+    public void saveToProperties(Properties props) throws SatisAuthException
     {
         if (props == null)
         {
@@ -176,7 +176,7 @@ public class SatisAuth {
         }
     }
     
-    public static SatisAuth loadAuth(Path directory)
+    public static SatisAuth loadAuth(Path directory) throws SatisAuthException
     {
         if (directory == null)
         {
@@ -207,7 +207,7 @@ public class SatisAuth {
         }
     }
     
-    public static SatisAuth loadAuth(Properties props)
+    public static SatisAuth loadAuth(Properties props) throws SatisAuthException
     {
         if (props == null)
         {
@@ -216,7 +216,7 @@ public class SatisAuth {
         try 
         {
             PrivateKey privKey = pemToPrivKey(props.getProperty("net.unknowndomain.satisj.privateKey"));
-            PublicKey pubKey = pemToPubKey(props.getProperty("net.unknowndomain.satisj.privateKey"));
+            PublicKey pubKey = pemToPubKey(props.getProperty("net.unknowndomain.satisj.publicKey"));
             String keyId = props.getProperty("net.unknowndomain.satisj.keyId");
             return new SatisAuth(privKey, pubKey, keyId);
         }
@@ -227,7 +227,7 @@ public class SatisAuth {
         }
     }
     
-    public static SatisAuth generateAuth(Environment env, String authToken)
+    public static SatisAuth generateAuth(Environment env, String authToken) throws SatisAuthException
     {
         try {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -237,11 +237,10 @@ public class SatisAuth {
             PublicKey pub = key.getPublic();
             OkHttpClient client = new OkHttpClient();
             MediaType JSON = MediaType.get("application/json; charset=utf-8");
-            ObjectMapper objectMapper = new ObjectMapper();
-            SatisAuthReq params = new SatisAuthReq();
-            params.public_key = keyToPem(pub);
-            params.token = authToken;
-            RequestBody body = RequestBody.create(objectMapper.writeValueAsString(params), JSON);
+            Map<String, String> params = new HashMap<>();
+            params.put("public_key", keyToPem(pub));
+            params.put("token", authToken);
+            RequestBody body = RequestBody.create(SatisApi.Tools.JSON_MAPPER.writeValueAsString(params), JSON);
             Request request = new Request.Builder()
                     .url(env.getEndpoint() + "/v1/authentication_keys")
                     .post(body)
@@ -256,8 +255,8 @@ public class SatisAuth {
                 case 404:
                     throw new SatisAuthException("Device token not found");
             }
-            SatisAuthResp keyWrapper = objectMapper.readValue(resp.body().string(), SatisAuthResp.class);
-            return new SatisAuth(priv, pub, keyWrapper.key_id);
+            Map keyWrapper = SatisApi.Tools.JSON_MAPPER.readValue(resp.body().charStream(), HashMap.class);
+            return new SatisAuth(priv, pub, (String) keyWrapper.get("key_id"));
         } 
         catch (NoSuchAlgorithmException | IOException ex) 
         {
@@ -267,74 +266,14 @@ public class SatisAuth {
         
     }
     
-    private static class SatisAuthReq{
-        private String token;
-        private String public_key;
-
-        /**
-         * @return the token
-         */
-        public String getToken() {
-            return token;
-        }
-
-        /**
-         * @param token the token to set
-         */
-        public void setToken(String token) {
-            this.token = token;
-        }
-
-        /**
-         * @return the public_key
-         */
-        public String getPublic_key() {
-            return public_key;
-        }
-
-        /**
-         * @param public_key the public_key to set
-         */
-        public void setPublic_key(String public_key) {
-            this.public_key = public_key;
-        }
-    }
-    
-    private static class SatisAuthResp {
-        private String key_id;
-
-        /**
-         * @return the key_id
-         */
-        public String getKey_id() {
-            return key_id;
-        }
-
-        /**
-         * @param key_id the key_id to set
-         */
-        public void setKey_id(String key_id) {
-            this.key_id = key_id;
-        }
-    }
-
-    /**
-     * @return the privateKey
-     */
     public PrivateKey getPrivateKey() {
         return privateKey;
     }
-
-    /**
-     * @return the publicKey
-     */
+    
     public PublicKey getPublicKey() {
         return publicKey;
     }
-
-    /**
-     * @return the keyId
-     */
+    
     public String getKeyId() {
         return keyId;
     }

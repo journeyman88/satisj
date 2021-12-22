@@ -13,26 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj;
+package net.unknowndomain.satisj.consumer.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public abstract class SatisJsonObject
+public class RetrieveConsumerBuilder implements SatisCallBuilder<RetrieveConsumer>
 {
-    @JsonIgnore
-    private final boolean error;
+    private String phoneNumber = "";
     
-    protected SatisJsonObject(boolean error)
+    /**
+     * Sets the phone number for Customer Retrieval.
+     * @param phoneNumber The phone number formatted with its prefix (eg. +390000000000)
+     * @return 
+     */
+    public RetrieveConsumerBuilder phoneNumber(String phoneNumber)
     {
-        this.error = error;
+        this.phoneNumber = phoneNumber;
+        return this;
     }
     
-    public boolean isError()
+    @Override
+    public RetrieveConsumer build()
     {
-        return error;
+        return new RetrieveConsumer(phoneNumber);
     }
 }

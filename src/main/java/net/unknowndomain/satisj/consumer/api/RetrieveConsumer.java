@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj.consumer.retrieve;
+package net.unknowndomain.satisj.consumer.api;
 
+import java.io.IOException;
+import java.io.InputStream;
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.consumer.Consumer;
-import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -25,6 +29,7 @@ import okhttp3.Response;
  */
 public class RetrieveConsumer extends SatisApiCall<Consumer> {
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveConsumer.class);
     private final String phoneNumber;
     
     protected RetrieveConsumer(String phoneNumber)
@@ -53,10 +58,18 @@ public class RetrieveConsumer extends SatisApiCall<Consumer> {
     }
 
     @Override
-    protected Consumer parseResponse(Response response)
+    protected Consumer parseResponse(InputStream response)
     {
-        response.body();
-        return null;
+        Consumer consumer = null;
+        try
+        {
+            consumer = SatisApi.Tools.JSON_MAPPER.readValue(response, Consumer.class);
+        }
+        catch (IOException ex)
+        {
+            LOGGER.error(null, ex);
+        }
+        return consumer;
     }
     
 }

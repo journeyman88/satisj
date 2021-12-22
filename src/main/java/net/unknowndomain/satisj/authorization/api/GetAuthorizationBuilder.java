@@ -13,26 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj;
+package net.unknowndomain.satisj.authorization.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public abstract class SatisJsonObject
+public class GetAuthorizationBuilder implements SatisCallBuilder<GetAuthorization>
 {
-    @JsonIgnore
-    private final boolean error;
+    private String id;
     
-    protected SatisJsonObject(boolean error)
+    /**
+     * Sets the id to use for Authorization retrive.
+     * The id of the authorization token.
+     * 
+     * @param id
+     * @return this builder.
+     */
+    public GetAuthorizationBuilder id(String id)
     {
-        this.error = error;
+        this.id = id;
+        return this;
     }
     
-    public boolean isError()
+    @Override
+    public GetAuthorization build()
     {
-        return error;
+        return new GetAuthorization(id);
     }
 }

@@ -15,18 +15,32 @@
  */
 package net.unknowndomain.satisj;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import net.unknowndomain.satisj.auth.SatisAuth;
+import net.unknowndomain.satisj.authorization.api.CreateAuthorizationBuilder;
+import net.unknowndomain.satisj.authorization.api.GetAuthorizationBuilder;
+import net.unknowndomain.satisj.authorization.api.UpdateAuthorizationBuilder;
 import net.unknowndomain.satisj.common.SatisError;
-import net.unknowndomain.satisj.consumer.retrieve.RetrieveConsumerBuilder;
-import net.unknowndomain.satisj.payment.create.CreatePaymentBuilder;
+import net.unknowndomain.satisj.consumer.api.RetrieveConsumerBuilder;
+import net.unknowndomain.satisj.payment.api.CreatePaymentBuilder;
+import net.unknowndomain.satisj.payment.api.PaymentDetailsBuilder;
+import net.unknowndomain.satisj.payment.api.UpdatePaymentBuilder;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -46,12 +60,22 @@ public class SatisApi {
     private final Environment env;
     private final OkHttpClient client = new OkHttpClient();
     private final static Logger LOGGER = LoggerFactory.getLogger(SatisApi.class);
-    private final static FastDateFormat SIGN_DATE_FORMAT = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss Z");
     private final static MediaType JSON = MediaType.get("application/json; charset=utf-8");
     
     public SatisApi(Environment env, SatisAuth auth){
         this.auth = auth;
         this.env = env;
+    }
+    
+    /**
+     * Register a new currency and sets the right-shift to conver amount to units.
+     * 
+     * @param currencyCode
+     * @param shift 
+     */
+    public static void registerCurrency(String currencyCode, int shift)
+    {
+        Tools.registerCurrency(currencyCode, shift);
     }
     
     public SatisJsonObject execCall(SatisApiCall call)
@@ -65,7 +89,7 @@ public class SatisApi {
                     call.getMethod().toLowerCase(),
                     env.getEndpoint().getPath() + call.getRelativeEndpoint(),
                     env.getEndpoint().getHost(),
-                    SIGN_DATE_FORMAT.format(data),
+                    Tools.SIGN_DATE_FORMAT.format(data),
                     digest);
             Signature sig = Signature.getInstance("SHA256WithRSA");
             sig.initSign(auth.getPrivateKey());
@@ -74,7 +98,7 @@ public class SatisApi {
             Request.Builder bld = new Request.Builder();
             bld.url(env.getEndpoint() + call.getRelativeEndpoint());
             bld.addHeader("Host", env.getEndpoint().getHost());
-            bld.addHeader("Date", SIGN_DATE_FORMAT.format(data));
+            bld.addHeader("Date", Tools.SIGN_DATE_FORMAT.format(data));
             bld.addHeader("Digest", "SHA-256="+digest);
             bld.addHeader("Authorization", String.format("Signature keyId=\"%s\", algorithm=\"rsa-sha256\", headers=\"(request-target) host date digest\", signature=\"%s\"", auth.getKeyId(), signature));
             bld.addHeader("Idempotency-Key", call.getIdempotencyKey());
@@ -98,11 +122,14 @@ public class SatisApi {
                     break;
             }
             Response resp = client.newCall(bld.build()).execute();
-            if (resp.code() == 200)
+            try (InputStream bodyStream = resp.body().byteStream())
             {
-                return call.parseResponse(resp);
+                if (resp.code() == 200)
+                {
+                    return call.parseResponse(bodyStream);
+                }
+                return Tools.JSON_MAPPER.readValue(bodyStream, SatisError.class);
             }
-            return new SatisError();
         } 
         catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | IOException ex)
         {
@@ -123,6 +150,70 @@ public class SatisApi {
         {
             return new CreatePaymentBuilder();
         }
+        public static PaymentDetailsBuilder details()
+        {
+            return new PaymentDetailsBuilder();
+        }
+        public static UpdatePaymentBuilder update()
+        {
+            return new UpdatePaymentBuilder();
+        }
     }
     
+    public static class AuthorizationApi {
+        public static CreateAuthorizationBuilder create()
+        {
+            return new CreateAuthorizationBuilder();
+        }
+        public static GetAuthorizationBuilder retrieve()
+        {
+            return new GetAuthorizationBuilder();
+        }
+        public static UpdateAuthorizationBuilder update()
+        {
+            return new UpdateAuthorizationBuilder();
+        }
+    }
+    public static class Tools
+    {
+        public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+        public static final FastDateFormat SIGN_DATE_FORMAT = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss Z");
+        private static Map<String, Integer> CURRENCY_SHIFT = new HashMap<>();
+
+        static
+        {
+            JSON_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+            JSON_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            CURRENCY_SHIFT = new HashMap<>();
+            registerCurrency("DEFAULT", 2);
+            registerCurrency("EUR", 2);
+        }
+        
+        private static void registerCurrency(String currencyCode, int shift)
+        {
+            if (currencyCode != null)
+            {
+                String curr = currencyCode.toUpperCase();
+                Map<String, Integer> cs = new HashMap<>();
+                cs.putAll(CURRENCY_SHIFT);
+                cs.put(curr, shift);
+                CURRENCY_SHIFT = Collections.unmodifiableMap(cs);
+            }
+        }
+
+        public static Long getUnits(BigDecimal amount)
+        {
+            return getUnits(null, amount);
+        }
+
+        public static Long getUnits(String currencyCode, BigDecimal amount)
+        {
+            String curr = currencyCode;
+            if ((curr == null) || (!CURRENCY_SHIFT.containsKey(curr)))
+            {
+                curr = "DEFAULT";
+            }
+            return amount.movePointRight(CURRENCY_SHIFT.get(curr)).longValue();
+        }
+    }
 }

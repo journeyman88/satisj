@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj.payment.create;
+package net.unknowndomain.satisj.payment.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.payment.Payment;
-import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author journeyman
  */
 public class CreatePayment extends SatisApiCall<Payment> {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreatePayment.class);
     
     @JsonProperty("flow")
     private final String flow;
@@ -84,21 +89,21 @@ public class CreatePayment extends SatisApiCall<Payment> {
         this.externalCode = externalCode;
         this.callbackUrl = callbackUrl;
         this.redirectUrl = redirectUrl;
-        this.amountUnit = amount.unscaledValue().longValue();
+        this.amountUnit = SatisApi.Tools.getUnits(currency, amount);
         this.metadata = Collections.unmodifiableMap(metadata);
     }
     
     @Override
     @JsonIgnore
     protected String getBody() {
-        ObjectMapper objectMapper = new ObjectMapper();
         String body = "";
         try
         {
-            body = objectMapper.writeValueAsString(this);
+            body = SatisApi.Tools.JSON_MAPPER.writeValueAsString(this);
         }
         catch (JsonProcessingException ex)
         {
+            LOGGER.error(null, ex);
         }
         return body;
     }
@@ -117,10 +122,18 @@ public class CreatePayment extends SatisApiCall<Payment> {
 
     @Override
     @JsonIgnore
-    protected Payment parseResponse(Response response)
+    protected Payment parseResponse(InputStream response)
     {
-        response.body();
-        return null;
+        Payment payment = null;
+        try
+        {
+            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Payment.class);
+        }
+        catch (IOException ex)
+        {
+            LOGGER.error(null, ex);
+        }
+        return payment;
     }
 
     public Date getExpirationDate()

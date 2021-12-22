@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj.consumer.retrieve;
+package net.unknowndomain.satisj.payment.api;
 
 import net.unknowndomain.satisj.SatisCallBuilder;
 
@@ -21,20 +21,24 @@ import net.unknowndomain.satisj.SatisCallBuilder;
  *
  * @author journeyman
  */
-public class RetrieveConsumerBuilder implements SatisCallBuilder<RetrieveConsumer>
+public class PaymentDetailsBuilder implements SatisCallBuilder<PaymentDetails>
 {
-    private String phoneNumber = "";
+    private String id = "";
     
-    
-    public RetrieveConsumerBuilder matchUser(String phoneNumber)
+    /**
+     * Sets the Payment ID for retrieval.
+     * @param id The id of the payment to retrieve
+     * @return 
+     */
+    public PaymentDetailsBuilder id(String id)
     {
-        this.phoneNumber = phoneNumber;
+        this.id = id;
         return this;
     }
     
     @Override
-    public RetrieveConsumer build()
+    public PaymentDetails build()
     {
-        return new RetrieveConsumer(phoneNumber);
+        return new PaymentDetails(id);
     }
 }

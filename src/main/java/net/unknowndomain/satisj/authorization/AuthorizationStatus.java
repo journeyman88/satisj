@@ -13,26 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+package net.unknowndomain.satisj.authorization;
 
 /**
  *
  * @author journeyman
  */
-public abstract class SatisJsonObject
+public enum AuthorizationStatus
 {
-    @JsonIgnore
-    private final boolean error;
-    
-    protected SatisJsonObject(boolean error)
-    {
-        this.error = error;
-    }
-    
-    public boolean isError()
-    {
-        return error;
-    }
+    PENDING,
+    ACCEPTED,
+    CANCELED
 }

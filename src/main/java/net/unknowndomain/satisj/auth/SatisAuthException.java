@@ -19,7 +19,7 @@ package net.unknowndomain.satisj.auth;
  *
  * @author journeyman
  */
-public class SatisAuthException extends RuntimeException {
+public class SatisAuthException extends Exception {
 
     /**
      * Creates a new instance of <code>SatisAuthException</code> without detail
