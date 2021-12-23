@@ -17,17 +17,23 @@ package net.unknowndomain.satisj.authorization.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public class CreateAuthorizationBuilder implements SatisCallBuilder<CreateAuthorization>
+public class CreateAuthorizationBuilder extends SatisCallBuilder<CreateAuthorization>
 {
     private String reason;
     private String callbackUrl;
     private Map<String, String> metadata = new HashMap<>();
+    
+    public CreateAuthorizationBuilder(SatisApi api)
+    {
+        super(api);
+    }
     
     /**
      * Sets the reason of the Authorization.
@@ -76,6 +82,6 @@ public class CreateAuthorizationBuilder implements SatisCallBuilder<CreateAuthor
     @Override
     public CreateAuthorization build()
     {
-        return new CreateAuthorization(reason, callbackUrl, metadata);
+        return new CreateAuthorization(api, reason, callbackUrl, metadata);
     }
 }

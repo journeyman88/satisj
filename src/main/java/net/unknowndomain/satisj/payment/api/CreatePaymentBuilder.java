@@ -19,13 +19,14 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public class CreatePaymentBuilder implements SatisCallBuilder<CreatePayment>
+public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
 {
     private String flow = "MATCH_CODE";
     private BigDecimal amount = BigDecimal.ZERO;
@@ -38,6 +39,11 @@ public class CreatePaymentBuilder implements SatisCallBuilder<CreatePayment>
     private String redirectUrl;
     private Date expirationDate;
     private Map<String, String> metadata = new HashMap<>();
+    
+    public CreatePaymentBuilder(SatisApi api)
+    {
+        super(api);
+    }
     
     public CreatePaymentBuilder matchCode()
     {
@@ -138,6 +144,6 @@ public class CreatePaymentBuilder implements SatisCallBuilder<CreatePayment>
     @Override
     public CreatePayment build()
     {
-        return new CreatePayment(flow, amount, currency, preAuthorizedPaymentsToken, parentPaymentUid, consumerUid, externalCode, callbackUrl, redirectUrl, expirationDate, metadata);
+        return new CreatePayment(api, flow, amount, currency, preAuthorizedPaymentsToken, parentPaymentUid, consumerUid, externalCode, callbackUrl, redirectUrl, expirationDate, metadata);
     }
 }

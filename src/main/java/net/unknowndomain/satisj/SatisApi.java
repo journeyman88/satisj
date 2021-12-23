@@ -32,12 +32,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
-import java.util.logging.Level;
 import net.unknowndomain.satisj.auth.SatisAuth;
 import net.unknowndomain.satisj.authorization.api.CreateAuthorizationBuilder;
 import net.unknowndomain.satisj.authorization.api.GetAuthorizationBuilder;
 import net.unknowndomain.satisj.authorization.api.UpdateAuthorizationBuilder;
+import net.unknowndomain.satisj.common.SatisApiException;
 import net.unknowndomain.satisj.common.SatisError;
 import net.unknowndomain.satisj.consumer.api.RetrieveConsumerBuilder;
 import net.unknowndomain.satisj.payment.api.CreatePaymentBuilder;
@@ -71,6 +72,9 @@ public class SatisApi {
     private String appVersion;
     private String deviceType;
     private String trackingCode;
+    private final ConsumerApi consumerApi = new ConsumerApi(this);
+    private final PaymentApi paymentApi = new PaymentApi(this);
+    private final AuthorizationApi authorizationApi = new AuthorizationApi(this);
     
     static {
         Properties props = new Properties();
@@ -101,8 +105,9 @@ public class SatisApi {
         Tools.registerCurrency(currencyCode, shift);
     }
     
-    public SatisJsonObject execCall(SatisApiCall call)
+    protected InputStream execCall(SatisApiCall call) throws SatisApiException
     {
+        InputStream retVal = null;
         try {
             String body = call.getBody();
             MessageDigest md = MessageDigest.getInstance("SHA256");
@@ -110,7 +115,7 @@ public class SatisApi {
             Date data = new Date();
             String toSign = String.format("(request-target): %s %s\nhost: %s\ndate: %s\ndigest: SHA-256=%s", 
                     call.getMethod().toLowerCase(),
-                    env.getEndpoint().getPath() + call.getRelativeEndpoint(),
+                    call.getEndpoint(env),
                     env.getEndpoint().getHost(),
                     Tools.SIGN_DATE_FORMAT.format(data),
                     digest);
@@ -119,7 +124,7 @@ public class SatisApi {
             sig.update(toSign.getBytes(StandardCharsets.UTF_8));
             String signature = Base64.encodeBase64String(sig.sign());
             Request.Builder bld = new Request.Builder();
-            bld.url(env.getEndpoint() + call.getRelativeEndpoint());
+            bld.url(call.getUrl(env));
             bld.addHeader("User-Agent", USER_AGENT);
             bld.addHeader("Host", env.getEndpoint().getHost());
             bld.addHeader("Date", Tools.SIGN_DATE_FORMAT.format(data));
@@ -174,52 +179,89 @@ public class SatisApi {
             {
                 if (resp.code() == 200)
                 {
-                    return call.parseResponse(bodyStream);
+                    retVal = resp.body().byteStream();
                 }
-                return Tools.JSON_MAPPER.readValue(bodyStream, SatisError.class);
+                throw new SatisApiException(Tools.JSON_MAPPER.readValue(bodyStream, SatisError.class));
             }
         } 
         catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | IOException ex)
         {
             LOGGER.error(null, ex);
         }
-        return null;
+        return retVal;
     }
     
-    public static class ConsumerApi {
-        public static RetrieveConsumerBuilder retrieve()
+    public ConsumerApi consumer()
+    {
+        return consumerApi;
+    }
+    public PaymentApi payment()
+    {
+        return paymentApi;
+    }
+    public AuthorizationApi authorization()
+    {
+        return authorizationApi;
+    }
+    
+    protected class ConsumerApi {
+        
+        private final SatisApi api;
+        
+        protected ConsumerApi(SatisApi api)
         {
-            return new RetrieveConsumerBuilder();
+            this.api = api;
+        }
+        
+        public RetrieveConsumerBuilder retrieve()
+        {
+            return new RetrieveConsumerBuilder(api);
         }
     }
     
-    public static class PaymentApi {
-        public static CreatePaymentBuilder create()
+    protected static class PaymentApi {
+        
+        private final SatisApi api;
+        
+        protected PaymentApi(SatisApi api)
         {
-            return new CreatePaymentBuilder();
+            this.api = api;
         }
-        public static PaymentDetailsBuilder details()
+        
+        public CreatePaymentBuilder create()
         {
-            return new PaymentDetailsBuilder();
+            return new CreatePaymentBuilder(api);
         }
-        public static UpdatePaymentBuilder update()
+        public PaymentDetailsBuilder details()
         {
-            return new UpdatePaymentBuilder();
+            return new PaymentDetailsBuilder(api);
+        }
+        public UpdatePaymentBuilder update()
+        {
+            return new UpdatePaymentBuilder(api);
         }
     }
     
-    public static class AuthorizationApi {
-        public static CreateAuthorizationBuilder create()
+    protected static class AuthorizationApi {
+        
+        private final SatisApi api;
+        
+        protected AuthorizationApi(SatisApi api)
         {
-            return new CreateAuthorizationBuilder();
+            this.api = api;
         }
-        public static GetAuthorizationBuilder retrieve()
+        
+        public CreateAuthorizationBuilder create()
         {
-            return new GetAuthorizationBuilder();
+            return new CreateAuthorizationBuilder(api);
         }
-        public static UpdateAuthorizationBuilder update()
+        public GetAuthorizationBuilder retrieve()
         {
-            return new UpdateAuthorizationBuilder();
+            return new GetAuthorizationBuilder(api);
+        }
+        public UpdateAuthorizationBuilder update()
+        {
+            return new UpdateAuthorizationBuilder(api);
         }
     }
     public static class Tools

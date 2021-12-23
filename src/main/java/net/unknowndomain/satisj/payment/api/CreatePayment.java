@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.payment.Payment;
@@ -66,6 +67,7 @@ public class CreatePayment extends SatisApiCall<Payment> {
     private final BigDecimal amount;
     
     protected CreatePayment(
+            SatisApi api,
             String flow, 
             BigDecimal amount,
             String currency,
@@ -79,6 +81,7 @@ public class CreatePayment extends SatisApiCall<Payment> {
             Map<String, String> metadata
             )
     {
+        super(api, Payment.class);
         this.amount = amount;
         this.expirationDate = expirationDate;
         this.flow = flow;
@@ -116,25 +119,25 @@ public class CreatePayment extends SatisApiCall<Payment> {
 
     @Override
     @JsonIgnore
-    protected String getRelativeEndpoint() {
-        return "/v1/payments";
+    protected String getEndpoint(Environment env) {
+        return env.getEndpoint().getPath() + "/v1/payments";
     }
 
-    @Override
-    @JsonIgnore
-    protected Payment parseResponse(InputStream response)
-    {
-        Payment payment = null;
-        try
-        {
-            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Payment.class);
-        }
-        catch (IOException ex)
-        {
-            LOGGER.error(null, ex);
-        }
-        return payment;
-    }
+//    @Override
+//    @JsonIgnore
+//    protected Payment parseResponse(InputStream response)
+//    {
+//        Payment payment = null;
+//        try
+//        {
+//            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Payment.class);
+//        }
+//        catch (IOException ex)
+//        {
+//            LOGGER.error(null, ex);
+//        }
+//        return payment;
+//    }
 
     public Date getExpirationDate()
     {

@@ -15,15 +15,21 @@
  */
 package net.unknowndomain.satisj.authorization.api;
 
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public class GetAuthorizationBuilder implements SatisCallBuilder<GetAuthorization>
+public class GetAuthorizationBuilder extends SatisCallBuilder<GetAuthorization>
 {
     private String id;
+    
+    public GetAuthorizationBuilder(SatisApi api)
+    {
+        super(api);
+    }
     
     /**
      * Sets the id to use for Authorization retrive.
@@ -41,6 +47,6 @@ public class GetAuthorizationBuilder implements SatisCallBuilder<GetAuthorizatio
     @Override
     public GetAuthorization build()
     {
-        return new GetAuthorization(id);
+        return new GetAuthorization(api, id);
     }
 }

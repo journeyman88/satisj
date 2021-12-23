@@ -18,6 +18,7 @@ package net.unknowndomain.satisj.authorization.api;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.io.InputStream;
+import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.authorization.Authorization;
@@ -34,8 +35,9 @@ public class GetAuthorization extends SatisApiCall<Authorization> {
     
     private final String id;
     
-    protected GetAuthorization(String id)
+    protected GetAuthorization(SatisApi api, String id)
     {
+        super(api, Authorization.class);
         this.id = id;
     }
     
@@ -53,25 +55,25 @@ public class GetAuthorization extends SatisApiCall<Authorization> {
 
     @Override
     @JsonIgnore
-    protected String getRelativeEndpoint() {
-        return "/v1/pre_authorized_payment_tokens/" + id;
+    protected String getEndpoint(Environment env) {
+        return env.getEndpoint().getPath() + "/v1/pre_authorized_payment_tokens/" + id;
     }
 
-    @Override
-    @JsonIgnore
-    protected Authorization parseResponse(InputStream response)
-    {
-        Authorization payment = null;
-        try
-        {
-            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Authorization.class);
-        }
-        catch (IOException ex)
-        {
-            LOGGER.error(null, ex);
-        }
-        return payment;
-    }
+//    @Override
+//    @JsonIgnore
+//    protected Authorization parseResponse(InputStream response)
+//    {
+//        Authorization payment = null;
+//        try
+//        {
+//            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Authorization.class);
+//        }
+//        catch (IOException ex)
+//        {
+//            LOGGER.error(null, ex);
+//        }
+//        return payment;
+//    }
 
     public String getId()
     {

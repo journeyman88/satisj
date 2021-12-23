@@ -18,14 +18,20 @@ package net.unknowndomain.satisj.payment.api;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public class UpdatePaymentBuilder implements SatisCallBuilder<UpdatePayment>
+public class UpdatePaymentBuilder extends SatisCallBuilder<UpdatePayment>
 {
+    public UpdatePaymentBuilder(SatisApi api)
+    {
+        super(api);
+    }
+    
     private String action = "";
     private BigDecimal amount = BigDecimal.ZERO;
     private String currency = "EUR";
@@ -78,6 +84,6 @@ public class UpdatePaymentBuilder implements SatisCallBuilder<UpdatePayment>
     @Override
     public UpdatePayment build()
     {
-        return new UpdatePayment(id, amount, currency, action, metadata);
+        return new UpdatePayment(api, id, amount, currency, action, metadata);
     }
 }

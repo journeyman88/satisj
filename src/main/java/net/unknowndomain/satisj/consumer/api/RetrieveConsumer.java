@@ -17,6 +17,7 @@ package net.unknowndomain.satisj.consumer.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.consumer.Consumer;
@@ -32,8 +33,9 @@ public class RetrieveConsumer extends SatisApiCall<Consumer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveConsumer.class);
     private final String phoneNumber;
     
-    protected RetrieveConsumer(String phoneNumber)
+    protected RetrieveConsumer(SatisApi api, String phoneNumber)
     {
+        super(api, Consumer.class);
         this.phoneNumber = phoneNumber;
     }
     
@@ -53,23 +55,23 @@ public class RetrieveConsumer extends SatisApiCall<Consumer> {
     }
 
     @Override
-    protected String getRelativeEndpoint() {
-        return "/v1/consumers/"+ phoneNumber;
+    protected String getEndpoint(Environment env) {
+        return env.getEndpoint().getPath() + "/v1/consumers/"+ phoneNumber;
     }
-
-    @Override
-    protected Consumer parseResponse(InputStream response)
-    {
-        Consumer consumer = null;
-        try
-        {
-            consumer = SatisApi.Tools.JSON_MAPPER.readValue(response, Consumer.class);
-        }
-        catch (IOException ex)
-        {
-            LOGGER.error(null, ex);
-        }
-        return consumer;
-    }
+//
+//    @Override
+//    protected Consumer parseResponse(InputStream response)
+//    {
+//        Consumer consumer = null;
+//        try
+//        {
+//            consumer = SatisApi.Tools.JSON_MAPPER.readValue(response, Consumer.class);
+//        }
+//        catch (IOException ex)
+//        {
+//            LOGGER.error(null, ex);
+//        }
+//        return consumer;
+//    }
     
 }

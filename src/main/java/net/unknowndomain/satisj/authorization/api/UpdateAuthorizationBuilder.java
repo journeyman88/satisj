@@ -17,18 +17,24 @@ package net.unknowndomain.satisj.authorization.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public class UpdateAuthorizationBuilder implements SatisCallBuilder<UpdateAuthorization>
+public class UpdateAuthorizationBuilder extends SatisCallBuilder<UpdateAuthorization>
 {
     private String id;
     private String status = "CANCELED";
     private String consumerId;
     private Map<String, String> metadata = new HashMap<>();
+    
+    public UpdateAuthorizationBuilder(SatisApi api)
+    {
+        super(api);
+    }
     
     /**
      * Sets the id to use for Authorization update.
@@ -84,6 +90,6 @@ public class UpdateAuthorizationBuilder implements SatisCallBuilder<UpdateAuthor
     @Override
     public UpdateAuthorization build()
     {
-        return new UpdateAuthorization(id, status, consumerId, metadata);
+        return new UpdateAuthorization(api, id, status, consumerId, metadata);
     }
 }

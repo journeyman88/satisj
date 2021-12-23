@@ -16,8 +16,11 @@
 package net.unknowndomain.satisj;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.InputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.UUID;
+import net.unknowndomain.satisj.common.SatisApiException;
 
 /**
  *
@@ -27,7 +30,17 @@ import java.util.UUID;
 public abstract class SatisApiCall<T extends SatisJsonObject> {
     
     @JsonIgnore
+    private final SatisApi api;    
+    @JsonIgnore
+    private final Class<T> clazz;
+    @JsonIgnore
     private final String idempotencyKey = UUID.randomUUID().toString();
+    
+    protected SatisApiCall(SatisApi api, Class<T> clazz)
+    {
+        this.api = api;
+        this.clazz = clazz;
+    }
     
     public String getIdempotencyKey()
     {
@@ -36,7 +49,16 @@ public abstract class SatisApiCall<T extends SatisJsonObject> {
     
     protected abstract String getBody();
     protected abstract String getMethod();
-    protected abstract String getRelativeEndpoint();
-    protected abstract T parseResponse(InputStream response);
+    protected abstract String getEndpoint(Environment env);
+    
+    protected URL getUrl(Environment env) throws MalformedURLException
+    {
+        return new URL(env.getEndpoint().getProtocol(), env.getEndpoint().getHost(), getEndpoint(env));
+    }
+    
+    public T execute() throws SatisApiException, IOException
+    {
+        return SatisApi.Tools.JSON_MAPPER.readValue(api.execCall(this), clazz);
+    }
     
 }

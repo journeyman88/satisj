@@ -17,6 +17,7 @@ package net.unknowndomain.satisj.payment.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.payment.Payment;
@@ -33,8 +34,9 @@ public class PaymentDetails extends SatisApiCall<Payment> {
     
     private final String id;
     
-    protected PaymentDetails(String id)
+    protected PaymentDetails(SatisApi api, String id)
     {
+        super(api, Payment.class);
         this.id = id;
     }
     
@@ -49,24 +51,24 @@ public class PaymentDetails extends SatisApiCall<Payment> {
     }
 
     @Override
-    protected String getRelativeEndpoint() {
-        return "/v1/payments/" + id;
+    protected String getEndpoint(Environment env) {
+        return env.getEndpoint().getPath() + "/v1/payments/" + id;
     }
 
-    @Override
-    protected Payment parseResponse(InputStream response)
-    {
-        Payment payment = null;
-        try
-        {
-            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Payment.class);
-        }
-        catch (IOException ex)
-        {
-            LOGGER.error(null, ex);
-        }
-        return payment;
-    }
+//    @Override
+//    protected Payment parseResponse(InputStream response)
+//    {
+//        Payment payment = null;
+//        try
+//        {
+//            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Payment.class);
+//        }
+//        catch (IOException ex)
+//        {
+//            LOGGER.error(null, ex);
+//        }
+//        return payment;
+//    }
 
     public String getId()
     {

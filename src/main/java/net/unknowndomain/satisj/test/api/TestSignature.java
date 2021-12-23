@@ -17,6 +17,7 @@ package net.unknowndomain.satisj.test.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.consumer.Consumer;
@@ -31,6 +32,11 @@ public class TestSignature extends SatisApiCall<Consumer> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(TestSignature.class);
     
+    public TestSignature(SatisApi api)
+    {
+        super(api, Consumer.class);
+    }
+    
     @Override
     protected String getBody() {
         return "";
@@ -42,23 +48,23 @@ public class TestSignature extends SatisApiCall<Consumer> {
     }
 
     @Override
-    protected String getRelativeEndpoint() {
+    protected String getEndpoint(Environment env) {
         return "/wally-services/protocol/tests/signature";
     }
 
-    @Override
-    protected Consumer parseResponse(InputStream response)
-    {
-        Consumer consumer = null;
-        try
-        {
-            consumer = SatisApi.Tools.JSON_MAPPER.readValue(response, Consumer.class);
-        }
-        catch (IOException ex)
-        {
-            LOGGER.error(null, ex);
-        }
-        return consumer;
-    }
+//    @Override
+//    protected Consumer parseResponse(InputStream response)
+//    {
+//        Consumer consumer = null;
+//        try
+//        {
+//            consumer = SatisApi.Tools.JSON_MAPPER.readValue(response, Consumer.class);
+//        }
+//        catch (IOException ex)
+//        {
+//            LOGGER.error(null, ex);
+//        }
+//        return consumer;
+//    }
     
 }

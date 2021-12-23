@@ -15,14 +15,20 @@
  */
 package net.unknowndomain.satisj.consumer.api;
 
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public class RetrieveConsumerBuilder implements SatisCallBuilder<RetrieveConsumer>
+public class RetrieveConsumerBuilder extends SatisCallBuilder<RetrieveConsumer>
 {
+    public RetrieveConsumerBuilder(SatisApi api)
+    {
+        super(api);
+    }
+    
     private String phoneNumber = "";
     
     /**
@@ -39,6 +45,6 @@ public class RetrieveConsumerBuilder implements SatisCallBuilder<RetrieveConsume
     @Override
     public RetrieveConsumer build()
     {
-        return new RetrieveConsumer(phoneNumber);
+        return new RetrieveConsumer(api, phoneNumber);
     }
 }

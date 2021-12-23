@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Map;
+import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.payment.Payment;
@@ -51,6 +52,7 @@ public class UpdatePayment extends SatisApiCall<Payment> {
     private final String currency;
     
     protected UpdatePayment(
+            SatisApi api,
             String id, 
             BigDecimal amount,
             String currency,
@@ -58,6 +60,7 @@ public class UpdatePayment extends SatisApiCall<Payment> {
             Map<String, String> metadata
             )
     {
+        super(api, Payment.class);
         this.id = id;
         this.amount = amount;
         this.currency = currency;
@@ -89,25 +92,25 @@ public class UpdatePayment extends SatisApiCall<Payment> {
 
     @Override
     @JsonIgnore
-    protected String getRelativeEndpoint() {
-        return "/v1/payments/" + id;
+    protected String getEndpoint(Environment env) {
+        return env.getEndpoint().getPath() + "/v1/payments/" + id;
     }
 
-    @Override
-    @JsonIgnore
-    protected Payment parseResponse(InputStream response)
-    {
-        Payment payment = null;
-        try
-        {
-            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Payment.class);
-        }
-        catch (IOException ex)
-        {
-            LOGGER.error(null, ex);
-        }
-        return payment;
-    }
+//    @Override
+//    @JsonIgnore
+//    protected Payment parseResponse(InputStream response)
+//    {
+//        Payment payment = null;
+//        try
+//        {
+//            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Payment.class);
+//        }
+//        catch (IOException ex)
+//        {
+//            LOGGER.error(null, ex);
+//        }
+//        return payment;
+//    }
 
     public Long getAmountUnit()
     {
@@ -132,6 +135,11 @@ public class UpdatePayment extends SatisApiCall<Payment> {
     public String getId()
     {
         return id;
+    }
+
+    public String getCurrency()
+    {
+        return currency;
     }
     
 }

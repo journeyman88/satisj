@@ -15,14 +15,20 @@
  */
 package net.unknowndomain.satisj.payment.api;
 
+import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisCallBuilder;
 
 /**
  *
  * @author journeyman
  */
-public class PaymentDetailsBuilder implements SatisCallBuilder<PaymentDetails>
+public class PaymentDetailsBuilder extends SatisCallBuilder<PaymentDetails>
 {
+    public PaymentDetailsBuilder(SatisApi api)
+    {
+        super(api);
+    }
+    
     private String id = "";
     
     /**
@@ -39,6 +45,6 @@ public class PaymentDetailsBuilder implements SatisCallBuilder<PaymentDetails>
     @Override
     public PaymentDetails build()
     {
-        return new PaymentDetails(id);
+        return new PaymentDetails(api, id);
     }
 }

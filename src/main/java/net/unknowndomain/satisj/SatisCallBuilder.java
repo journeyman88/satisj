@@ -20,11 +20,18 @@ package net.unknowndomain.satisj;
  * @author journeyman
  * @param <T>
  */
-public interface SatisCallBuilder<T extends SatisApiCall>
+public abstract class SatisCallBuilder<T extends SatisApiCall>
 {
+    protected final SatisApi api;
+    
+    protected SatisCallBuilder(SatisApi api)
+    {
+        this.api = api;
+    }
+    
     /**
      * Build the unmodifiable SatisApiCall object.
      * @return 
      */
-    T build();
+    public abstract T build();
 }

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
+import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.SatisApi;
 import net.unknowndomain.satisj.SatisApiCall;
 import net.unknowndomain.satisj.authorization.Authorization;
@@ -46,12 +47,14 @@ public class UpdateAuthorization extends SatisApiCall<Authorization> {
     private final String id;
     
     protected UpdateAuthorization(
+            SatisApi api, 
             String id,
             String status, 
             String consumerId,
             Map<String, String> metadata
             )
     {
+        super(api, Authorization.class);
         this.id = id;
         this.status = status;
         this.consumerId = consumerId;
@@ -81,25 +84,25 @@ public class UpdateAuthorization extends SatisApiCall<Authorization> {
 
     @Override
     @JsonIgnore
-    protected String getRelativeEndpoint() {
-        return "/v1/pre_authorized_payment_tokens/" + id;
+    protected String getEndpoint(Environment env) {
+        return env.getEndpoint().getPath() + "/v1/pre_authorized_payment_tokens/" + id;
     }
 
-    @Override
-    @JsonIgnore
-    protected Authorization parseResponse(InputStream response)
-    {
-        Authorization payment = null;
-        try
-        {
-            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Authorization.class);
-        }
-        catch (IOException ex)
-        {
-            LOGGER.error(null, ex);
-        }
-        return payment;
-    }
+//    @Override
+//    @JsonIgnore
+//    protected Authorization parseResponse(InputStream response)
+//    {
+//        Authorization payment = null;
+//        try
+//        {
+//            payment = SatisApi.Tools.JSON_MAPPER.readValue(response, Authorization.class);
+//        }
+//        catch (IOException ex)
+//        {
+//            LOGGER.error(null, ex);
+//        }
+//        return payment;
+//    }
 
     public Map<String, String> getMetadata()
     {

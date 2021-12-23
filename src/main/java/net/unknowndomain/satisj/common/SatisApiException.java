@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj.auth;
+package net.unknowndomain.satisj.common;
 
 /**
  *
  * @author journeyman
  */
-public class SatisAuthException extends Exception {
+public class SatisApiException extends Exception {
 
+    private final SatisError error;
     /**
-     * Creates a new instance of <code>SatisAuthException</code> without detail
-     * message.
+     * Creates a new instance of <code>SatisApiException</code> with error data.
+     * @param error
      */
-    public SatisAuthException() {
-    }
-
-    /**
-     * Constructs an instance of <code>SatisAuthException</code> with the
-     * specified detail message.
-     *
-     * @param msg the detail message.
-     */
-    public SatisAuthException(String msg) {
-        super(msg);
+    public SatisApiException(SatisError error) {
+        this.error = error;
     }
 }
