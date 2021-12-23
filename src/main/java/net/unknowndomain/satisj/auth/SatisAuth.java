@@ -244,15 +244,15 @@ public class SatisAuth {
             HttpEntity body = new StringEntity(SatisApi.Tools.JSON_MAPPER.writeValueAsString(params), ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8));
             req.setEntity(body);
             ClassicHttpResponse resp = httpClient.execute(req);
-//            switch(resp.getCode())
-//            {
-//                case 400:
-//                    throw new SatisAuthException("Invalid RSA Key");
-//                case 403:
-//                    throw new SatisAuthException("Token already paired");
-//                case 404:
-//                    throw new SatisAuthException("Device token not found");
-//            }
+            switch(resp.getCode())
+            {
+                case 400:
+                    throw new SatisAuthException("Invalid RSA Key");
+                case 403:
+                    throw new SatisAuthException("Token already paired");
+                case 404:
+                    throw new SatisAuthException("Device token not found");
+            }
             Map keyWrapper = SatisApi.Tools.JSON_MAPPER.readValue(resp.getEntity().getContent(), HashMap.class);
             return new SatisAuth(priv, pub, (String) keyWrapper.get("key_id"));
         } 
