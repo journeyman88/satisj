@@ -33,11 +33,13 @@ import java.util.Map;
 import java.util.Properties;
 import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.SatisApi;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
@@ -229,33 +231,29 @@ public class SatisAuth {
     
     public static SatisAuth generateAuth(Environment env, String authToken) throws SatisAuthException
     {
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()){
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
             keyGen.initialize(4096);
             KeyPair key = keyGen.generateKeyPair();
             PrivateKey priv = key.getPrivate();
             PublicKey pub = key.getPublic();
-            OkHttpClient client = new OkHttpClient();
-            MediaType JSON = MediaType.get("application/json; charset=utf-8");
             Map<String, String> params = new HashMap<>();
             params.put("public_key", keyToPem(pub));
             params.put("token", authToken);
-            RequestBody body = RequestBody.create(SatisApi.Tools.JSON_MAPPER.writeValueAsString(params), JSON);
-            Request request = new Request.Builder()
-                    .url(env.getEndpoint() + "/v1/authentication_keys")
-                    .post(body)
-                    .build();
-            Response resp = client.newCall(request).execute();
-            switch(resp.code())
-            {
-                case 400:
-                    throw new SatisAuthException("Invalid RSA Key");
-                case 403:
-                    throw new SatisAuthException("Token already paired");
-                case 404:
-                    throw new SatisAuthException("Device token not found");
-            }
-            Map keyWrapper = SatisApi.Tools.JSON_MAPPER.readValue(resp.body().charStream(), HashMap.class);
+            HttpPost req = new HttpPost(env.getEndpoint() + "/v1/authentication_keys");
+            HttpEntity body = new StringEntity(SatisApi.Tools.JSON_MAPPER.writeValueAsString(params), ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8));
+            req.setEntity(body);
+            ClassicHttpResponse resp = httpClient.execute(req);
+//            switch(resp.getCode())
+//            {
+//                case 400:
+//                    throw new SatisAuthException("Invalid RSA Key");
+//                case 403:
+//                    throw new SatisAuthException("Token already paired");
+//                case 404:
+//                    throw new SatisAuthException("Device token not found");
+//            }
+            Map keyWrapper = SatisApi.Tools.JSON_MAPPER.readValue(resp.getEntity().getContent(), HashMap.class);
             return new SatisAuth(priv, pub, (String) keyWrapper.get("key_id"));
         } 
         catch (NoSuchAlgorithmException | IOException ex) 

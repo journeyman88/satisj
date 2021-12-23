@@ -15,43 +15,40 @@
  */
 package net.unknowndomain.satisj;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
 import net.unknowndomain.satisj.auth.SatisAuth;
 import net.unknowndomain.satisj.authorization.api.CreateAuthorizationBuilder;
 import net.unknowndomain.satisj.authorization.api.GetAuthorizationBuilder;
 import net.unknowndomain.satisj.authorization.api.UpdateAuthorizationBuilder;
 import net.unknowndomain.satisj.common.SatisApiException;
+import net.unknowndomain.satisj.common.SatisBasicApi;
 import net.unknowndomain.satisj.common.SatisError;
 import net.unknowndomain.satisj.consumer.api.RetrieveConsumerBuilder;
 import net.unknowndomain.satisj.payment.api.CreatePaymentBuilder;
 import net.unknowndomain.satisj.payment.api.PaymentDetailsBuilder;
 import net.unknowndomain.satisj.payment.api.UpdatePaymentBuilder;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPatch;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,56 +56,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author journeyman
  */
-public class SatisApi {
-    private final SatisAuth auth;
-    private final Environment env;
-    private final OkHttpClient client = new OkHttpClient();
+public class SatisApi extends SatisBasicApi {
     private final static Logger LOGGER = LoggerFactory.getLogger(SatisApi.class);
-    private final static MediaType JSON = MediaType.get("application/json; charset=utf-8");
-    private final static String USER_AGENT;
-    private String platformName;
-    private String platformVersion;
-    private String appName;
-    private String appVersion;
-    private String deviceType;
-    private String trackingCode;
     private final ConsumerApi consumerApi = new ConsumerApi(this);
     private final PaymentApi paymentApi = new PaymentApi(this);
     private final AuthorizationApi authorizationApi = new AuthorizationApi(this);
-    
-    static {
-        Properties props = new Properties();
-        try (InputStream inStream = SatisApi.class.getResourceAsStream("/net/unknowndomain/satisj/version.properties"))
-        {
-            props.load(inStream);
-        } 
-        catch (IOException ex)
-        {
-            LOGGER.error(null, ex);
-        }
-        USER_AGENT = props.getProperty("library.name", "StatisJ") + "/" + props.getProperty("library.version", "0.0.0");
-    }
-    
-    public SatisApi(Environment env, SatisAuth auth){
-        this.auth = auth;
-        this.env = env;
-    }
-    
-    /**
-     * Register a new currency and sets the right-shift to conver amount to units.
-     * 
-     * @param currencyCode
-     * @param shift 
-     */
-    public static void registerCurrency(String currencyCode, int shift)
+
+    public SatisApi(Environment env, SatisAuth auth)
     {
-        Tools.registerCurrency(currencyCode, shift);
+        super(env, auth);
     }
     
     protected InputStream execCall(SatisApiCall call) throws SatisApiException
     {
         InputStream retVal = null;
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             String body = call.getBody();
             MessageDigest md = MessageDigest.getInstance("SHA256");
             String digest = Base64.encodeBase64String(md.digest(body.getBytes()));
@@ -123,63 +85,63 @@ public class SatisApi {
             sig.initSign(auth.getPrivateKey());
             sig.update(toSign.getBytes(StandardCharsets.UTF_8));
             String signature = Base64.encodeBase64String(sig.sign());
-            Request.Builder bld = new Request.Builder();
-            bld.url(call.getUrl(env));
-            bld.addHeader("User-Agent", USER_AGENT);
-            bld.addHeader("Host", env.getEndpoint().getHost());
-            bld.addHeader("Date", Tools.SIGN_DATE_FORMAT.format(data));
-            bld.addHeader("Digest", "SHA-256="+digest);
-            bld.addHeader("Authorization", String.format("Signature keyId=\"%s\", algorithm=\"rsa-sha256\", headers=\"(request-target) host date digest\", signature=\"%s\"", auth.getKeyId(), signature));
-            bld.addHeader("Idempotency-Key", call.getIdempotencyKey());
-            if (StringUtils.isNotBlank(platformName))
-            {
-                bld.addHeader("x-satispay-os", platformName);
-            }
-            if (StringUtils.isNotBlank(platformVersion))
-            {
-                bld.addHeader("x-satispay-osv", platformVersion);
-            }
-            if (StringUtils.isNotBlank(appName))
-            {
-                bld.addHeader("x-satispay-appn", appName);
-            }
-            if (StringUtils.isNotBlank(appVersion))
-            {
-                bld.addHeader("x-satispay-appv", appVersion);
-            }
-            if (StringUtils.isNotBlank(appName))
-            {
-                bld.addHeader("x-satispay-devicetype", deviceType);
-            }
-            if (StringUtils.isNotBlank(trackingCode))
-            {
-                bld.addHeader("x-satispay-tracking-code", trackingCode);
-            }
-            RequestBody reqBody = RequestBody.create(body, JSON);
+            BasicClassicHttpRequest req = null;
             switch(call.getMethod())
             {
                 case "GET":
-                    bld.get();
+                    req = new HttpGet(call.getUrl(env).toString());
                     break;
                 case "POST":
-                    bld.post(reqBody);
+                    req = new HttpPost(call.getUrl(env).toString());
                     break;
                 case "PUT":
-                    bld.put(reqBody);
+                    req = new HttpPut(call.getUrl(env).toString());
                     break;
                 case "DELETE":
-                    bld.delete();
+                    req = new HttpDelete(call.getUrl(env).toString());
                     break;
                 case "PATCH":
-                    bld.patch(reqBody);
+                    req = new HttpPatch(call.getUrl(env).toString());
                     break;
             }
-            Response resp = client.newCall(bld.build()).execute();
-            try (InputStream bodyStream = resp.body().byteStream())
+            req.addHeader("User-Agent", USER_AGENT);
+            req.addHeader("Host", env.getEndpoint().getHost());
+            req.addHeader("Date", Tools.SIGN_DATE_FORMAT.format(data));
+            req.addHeader("Digest", "SHA-256="+digest);
+            req.addHeader("Authorization", String.format("Signature keyId=\"%s\", algorithm=\"rsa-sha256\", headers=\"(request-target) host date digest\", signature=\"%s\"", auth.getKeyId(), signature));
+            req.addHeader("Idempotency-Key", call.getIdempotencyKey());
+            if (StringUtils.isNotBlank(platformName))
             {
-                if (resp.code() == 200)
+                req.addHeader("x-satispay-os", platformName);
+            }
+            if (StringUtils.isNotBlank(platformVersion))
+            {
+                req.addHeader("x-satispay-osv", platformVersion);
+            }
+            if (StringUtils.isNotBlank(appName))
+            {
+                req.addHeader("x-satispay-appn", appName);
+            }
+            if (StringUtils.isNotBlank(appVersion))
+            {
+                req.addHeader("x-satispay-appv", appVersion);
+            }
+            if (StringUtils.isNotBlank(appName))
+            {
+                req.addHeader("x-satispay-devicetype", deviceType);
+            }
+            if (StringUtils.isNotBlank(trackingCode))
+            {
+                req.addHeader("x-satispay-tracking-code", trackingCode);
+            }
+            HttpEntity entity = new StringEntity(body, ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8));
+            req.setEntity(entity);
+            ClassicHttpResponse resp = httpClient.execute(req);
+            try (InputStream bodyStream = resp.getEntity().getContent())
+            {
+                if (resp.getCode() == 200)
                 {
-                    retVal = resp.body().byteStream();
+                    retVal = bodyStream;
                 }
                 throw new SatisApiException(Tools.JSON_MAPPER.readValue(bodyStream, SatisError.class));
             }
@@ -189,34 +151,6 @@ public class SatisApi {
             LOGGER.error(null, ex);
         }
         return retVal;
-    }
-    
-    public ConsumerApi consumer()
-    {
-        return consumerApi;
-    }
-    public PaymentApi payment()
-    {
-        return paymentApi;
-    }
-    public AuthorizationApi authorization()
-    {
-        return authorizationApi;
-    }
-    
-    protected class ConsumerApi {
-        
-        private final SatisApi api;
-        
-        protected ConsumerApi(SatisApi api)
-        {
-            this.api = api;
-        }
-        
-        public RetrieveConsumerBuilder retrieve()
-        {
-            return new RetrieveConsumerBuilder(api);
-        }
     }
     
     protected static class PaymentApi {
@@ -232,13 +166,28 @@ public class SatisApi {
         {
             return new CreatePaymentBuilder(api);
         }
-        public PaymentDetailsBuilder details()
+        public PaymentDetailsBuilder retrieve()
         {
             return new PaymentDetailsBuilder(api);
         }
         public UpdatePaymentBuilder update()
         {
             return new UpdatePaymentBuilder(api);
+        }
+    }
+    
+    protected static class ConsumerApi {
+        
+        private final SatisApi api;
+        
+        protected ConsumerApi(SatisApi api)
+        {
+            this.api = api;
+        }
+        
+        public RetrieveConsumerBuilder create()
+        {
+            return new RetrieveConsumerBuilder(api);
         }
     }
     
@@ -264,106 +213,19 @@ public class SatisApi {
             return new UpdateAuthorizationBuilder(api);
         }
     }
-    public static class Tools
+
+    public ConsumerApi consumer()
     {
-        public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
-        public static final FastDateFormat SIGN_DATE_FORMAT = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss Z");
-        private static Map<String, Integer> CURRENCY_SHIFT = new HashMap<>();
-
-        static
-        {
-            JSON_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-            JSON_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            CURRENCY_SHIFT = new HashMap<>();
-            registerCurrency("DEFAULT", 2);
-            registerCurrency("EUR", 2);
-        }
-        
-        private static void registerCurrency(String currencyCode, int shift)
-        {
-            if (currencyCode != null)
-            {
-                String curr = currencyCode.toUpperCase();
-                Map<String, Integer> cs = new HashMap<>();
-                cs.putAll(CURRENCY_SHIFT);
-                cs.put(curr, shift);
-                CURRENCY_SHIFT = Collections.unmodifiableMap(cs);
-            }
-        }
-
-        public static Long getUnits(BigDecimal amount)
-        {
-            return getUnits(null, amount);
-        }
-
-        public static Long getUnits(String currencyCode, BigDecimal amount)
-        {
-            String curr = currencyCode;
-            if ((curr == null) || (!CURRENCY_SHIFT.containsKey(curr)))
-            {
-                curr = "DEFAULT";
-            }
-            return amount.movePointRight(CURRENCY_SHIFT.get(curr)).longValue();
-        }
+        return consumerApi;
     }
 
-    public String getPlatformName()
+    public PaymentApi payment()
     {
-        return platformName;
+        return paymentApi;
     }
 
-    public void setPlatformName(String platformName)
+    public AuthorizationApi authorization()
     {
-        this.platformName = platformName;
-    }
-
-    public String getPlatformVersion()
-    {
-        return platformVersion;
-    }
-
-    public void setPlatformVersion(String platformVersion)
-    {
-        this.platformVersion = platformVersion;
-    }
-
-    public String getAppName()
-    {
-        return appName;
-    }
-
-    public void setAppName(String appName)
-    {
-        this.appName = appName;
-    }
-
-    public String getAppVersion()
-    {
-        return appVersion;
-    }
-
-    public void setAppVersion(String appVersion)
-    {
-        this.appVersion = appVersion;
-    }
-
-    public String getDeviceType()
-    {
-        return deviceType;
-    }
-
-    public void setDeviceType(String deviceType)
-    {
-        this.deviceType = deviceType;
-    }
-
-    public String getTrackingCode()
-    {
-        return trackingCode;
-    }
-
-    public void setTrackingCode(String trackingCode)
-    {
-        this.trackingCode = trackingCode;
+        return authorizationApi;
     }
 }
