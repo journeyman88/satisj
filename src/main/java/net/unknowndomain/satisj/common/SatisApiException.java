@@ -19,7 +19,7 @@ package net.unknowndomain.satisj.common;
  *
  * @author journeyman
  */
-public class SatisApiException extends Exception {
+public class SatisApiException extends RuntimeException {
 
     private final SatisError error;
     /**
@@ -28,5 +28,10 @@ public class SatisApiException extends Exception {
      */
     public SatisApiException(SatisError error) {
         this.error = error;
+    }
+
+    public SatisError getError()
+    {
+        return error;
     }
 }

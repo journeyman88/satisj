@@ -18,14 +18,12 @@ package net.unknowndomain.satisj.payment.api;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Map;
 import net.unknowndomain.satisj.Environment;
-import net.unknowndomain.satisj.SatisApi;
-import net.unknowndomain.satisj.SatisApiCall;
+import net.unknowndomain.satisj.common.SatisApi;
+import net.unknowndomain.satisj.common.SatisApiCall;
 import net.unknowndomain.satisj.payment.Payment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +69,7 @@ public class UpdatePayment extends SatisApiCall<Payment> {
     
     @Override
     @JsonIgnore
-    protected String getBody() {
+    public String getBody() {
         String body = "";
         try
         {
@@ -86,7 +84,7 @@ public class UpdatePayment extends SatisApiCall<Payment> {
 
     @Override
     @JsonIgnore
-    protected String getMethod() {
+    public String getMethod() {
         return "PUT";
     }
 

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj;
+package net.unknowndomain.satisj.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
-import net.unknowndomain.satisj.common.SatisApiException;
+import java.util.concurrent.Future;
+import net.unknowndomain.satisj.Environment;
 
 /**
  *
@@ -47,11 +47,11 @@ public abstract class SatisApiCall<T extends SatisJsonObject> {
         return idempotencyKey;
     }
     
-    protected abstract String getBody();
-    protected abstract String getMethod();
+    public abstract String getBody();
+    public abstract String getMethod();
     protected abstract String getEndpoint(Environment env);
     
-    protected URL getUrl(Environment env) throws MalformedURLException
+    public URL getUrl(Environment env) throws MalformedURLException
     {
         return new URL(env.getEndpoint().getProtocol(), env.getEndpoint().getHost(), getEndpoint(env));
     }
@@ -59,6 +59,11 @@ public abstract class SatisApiCall<T extends SatisJsonObject> {
     public T execute() throws SatisApiException
     {
         return api.execCall(this, clazz);
+    }
+    
+    public Future <T> queue() throws SatisApiException
+    {
+        return api.queueCall(this, clazz);
     }
     
 }

@@ -18,13 +18,11 @@ package net.unknowndomain.satisj.authorization.api;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 import net.unknowndomain.satisj.Environment;
-import net.unknowndomain.satisj.SatisApi;
-import net.unknowndomain.satisj.SatisApiCall;
+import net.unknowndomain.satisj.common.SatisApi;
+import net.unknowndomain.satisj.common.SatisApiCall;
 import net.unknowndomain.satisj.authorization.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +57,7 @@ public class CreateAuthorization extends SatisApiCall<Authorization> {
     
     @Override
     @JsonIgnore
-    protected String getBody() {
+    public String getBody() {
         String body = "";
         try
         {
@@ -74,7 +72,7 @@ public class CreateAuthorization extends SatisApiCall<Authorization> {
 
     @Override
     @JsonIgnore
-    protected String getMethod() {
+    public String getMethod() {
         return "POST";
     }
 

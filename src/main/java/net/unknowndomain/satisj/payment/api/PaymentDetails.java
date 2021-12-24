@@ -15,11 +15,9 @@
  */
 package net.unknowndomain.satisj.payment.api;
 
-import java.io.IOException;
-import java.io.InputStream;
 import net.unknowndomain.satisj.Environment;
-import net.unknowndomain.satisj.SatisApi;
-import net.unknowndomain.satisj.SatisApiCall;
+import net.unknowndomain.satisj.common.SatisApi;
+import net.unknowndomain.satisj.common.SatisApiCall;
 import net.unknowndomain.satisj.payment.Payment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,12 +39,12 @@ public class PaymentDetails extends SatisApiCall<Payment> {
     }
     
     @Override
-    protected String getBody() {
+    public String getBody() {
         return "";
     }
 
     @Override
-    protected String getMethod() {
+    public String getMethod() {
         return "GET";
     }
 

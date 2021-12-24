@@ -15,8 +15,8 @@
  */
 package net.unknowndomain.satisj.payment.api;
 
-import net.unknowndomain.satisj.SatisApi;
-import net.unknowndomain.satisj.SatisCallBuilder;
+import net.unknowndomain.satisj.common.SatisApi;
+import net.unknowndomain.satisj.common.SatisCallBuilder;
 
 /**
  *

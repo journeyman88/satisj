@@ -19,8 +19,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import net.unknowndomain.satisj.SatisApi;
-import net.unknowndomain.satisj.SatisCallBuilder;
+import net.unknowndomain.satisj.common.SatisApi;
+import net.unknowndomain.satisj.common.SatisCallBuilder;
 
 /**
  *

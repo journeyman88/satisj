@@ -15,11 +15,9 @@
  */
 package net.unknowndomain.satisj.consumer.api;
 
-import java.io.IOException;
-import java.io.InputStream;
 import net.unknowndomain.satisj.Environment;
-import net.unknowndomain.satisj.SatisApi;
-import net.unknowndomain.satisj.SatisApiCall;
+import net.unknowndomain.satisj.common.SatisApi;
+import net.unknowndomain.satisj.common.SatisApiCall;
 import net.unknowndomain.satisj.consumer.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +38,7 @@ public class RetrieveConsumer extends SatisApiCall<Consumer> {
     }
     
     @Override
-    protected String getBody() {
+    public String getBody() {
         return "";
     }
 
@@ -50,7 +48,7 @@ public class RetrieveConsumer extends SatisApiCall<Consumer> {
     }
 
     @Override
-    protected String getMethod() {
+    public String getMethod() {
         return "GET";
     }
 

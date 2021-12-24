@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import net.unknowndomain.satisj.Environment;
-import net.unknowndomain.satisj.SatisApi;
+import net.unknowndomain.satisj.common.SatisApi;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;

@@ -17,8 +17,8 @@ package net.unknowndomain.satisj.authorization.api;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.unknowndomain.satisj.SatisApi;
-import net.unknowndomain.satisj.SatisCallBuilder;
+import net.unknowndomain.satisj.common.SatisApi;
+import net.unknowndomain.satisj.common.SatisCallBuilder;
 
 /**
  *

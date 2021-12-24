@@ -16,7 +16,6 @@
 package net.unknowndomain.satisj.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.unknowndomain.satisj.SatisJsonObject;
 
 /**
  *

@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.unknowndomain.satisj;
+package net.unknowndomain.satisj.common;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.unknowndomain.satisj.common.SatisApiCall;
+import net.unknowndomain.satisj.common.SatisApi;
 
 /**
  *
  * @author journeyman
+ * @param <T>
  */
-public abstract class SatisJsonObject
+public abstract class SatisCallBuilder<T extends SatisApiCall>
 {
-    @JsonIgnore
-    private final boolean error;
+    protected final SatisApi api;
     
-    protected SatisJsonObject(boolean error)
+    protected SatisCallBuilder(SatisApi api)
     {
-        this.error = error;
+        this.api = api;
     }
     
-    public boolean isError()
-    {
-        return error;
-    }
+    /**
+     * Build the unmodifiable SatisApiCall object.
+     * @return 
+     */
+    public abstract T build();
 }

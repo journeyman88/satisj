@@ -18,7 +18,7 @@ package net.unknowndomain.satisj.payment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
-import net.unknowndomain.satisj.SatisJsonObject;
+import net.unknowndomain.satisj.common.SatisJsonObject;
 
 /**
  *
