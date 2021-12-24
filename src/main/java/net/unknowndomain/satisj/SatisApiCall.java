@@ -56,9 +56,9 @@ public abstract class SatisApiCall<T extends SatisJsonObject> {
         return new URL(env.getEndpoint().getProtocol(), env.getEndpoint().getHost(), getEndpoint(env));
     }
     
-    public T execute() throws SatisApiException, IOException
+    public T execute() throws SatisApiException
     {
-        return SatisApi.Tools.JSON_MAPPER.readValue(api.execCall(this), clazz);
+        return api.execCall(this, clazz);
     }
     
 }

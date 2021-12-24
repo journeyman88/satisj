@@ -67,9 +67,9 @@ public class SatisApi extends SatisBasicApi {
         super(env, auth);
     }
     
-    protected InputStream execCall(SatisApiCall call) throws SatisApiException
+    protected <T> T execCall(SatisApiCall call, Class<T> clazz) throws SatisApiException
     {
-        InputStream retVal = null;
+        T retVal = null;
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             String body = call.getBody();
             MessageDigest md = MessageDigest.getInstance("SHA256");
@@ -141,7 +141,7 @@ public class SatisApi extends SatisBasicApi {
             {
                 if (resp.getCode() == 200)
                 {
-                    retVal = bodyStream;
+                    retVal = Tools.JSON_MAPPER.readValue(bodyStream, clazz);
                 }
                 throw new SatisApiException(Tools.JSON_MAPPER.readValue(bodyStream, SatisError.class));
             }
