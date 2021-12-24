@@ -47,5 +47,45 @@ public class Authorization extends SatisJsonObject
         super(false);
     }
 
+    public String getId()
+    {
+        return id;
+    }
+
+    public String getCodeIdentifier()
+    {
+        return codeIdentifier;
+    }
+
+    public String getShopId()
+    {
+        return shopId;
+    }
+
+    public String getConsumerId()
+    {
+        return consumerId;
+    }
+
+    public String getReason()
+    {
+        return reason;
+    }
+
+    public String getCallbackUrl()
+    {
+        return callbackUrl;
+    }
+
+    public AuthorizationStatus getStatus()
+    {
+        return status;
+    }
+
+    public Map<String, Object> getMetadata()
+    {
+        return metadata;
+    }
+
 
 }

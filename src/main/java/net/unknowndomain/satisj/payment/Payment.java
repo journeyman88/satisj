@@ -26,6 +26,7 @@ import net.unknowndomain.satisj.common.SatisJsonObject;
  */
 public class Payment extends SatisJsonObject
 {
+
     public Payment()
     {
         super(false);
@@ -57,21 +58,97 @@ public class Payment extends SatisJsonObject
     private String externalCode;
     @JsonProperty("redirect_url")
     private String redirectUrl;
+    @JsonProperty("status_ownership")
+    private boolean statusOwnership;
+    @JsonProperty("status_owner")
+    private Actor statusOwner;
+    @JsonProperty("receiver")
+    private Actor receiver;
+    @JsonProperty("sender")
+    private Actor sender;
     
-//    sender [object]: The sender actor of the payment
-//        id [string]: Unique ID of the sender
-//        type [string]: Type of the actor (CONSUMER or SHOP)
-//        name [string]: Short name of the actor
-//    receiver [object]: The receiver actor of the payment
-//        id [string]: Unique ID of the receiver
-//        type [string]: Type of the actor (SHOP or CONSUMER)
 //    daily_closure [object]: The daily closure of the payment
 //        id [string]: ID of the daily closure
 //        date [string]: The closure date
-//    status_ownership [boolean]: If true, the device making the request is responsible for the final status reached by the payment
-//    status_owner [object]: The actor responsible of the payment final status
-//        id [string]: Unique ID of the actor
-//        type[string]: Type of the actor (DEVICE)
 
+    
+    public String getId()
+    {
+        return id;
+    }
 
+    public String getCodeIdentifier()
+    {
+        return codeIdentifier;
+    }
+
+    public Long getAmountUnit()
+    {
+        return amountUnit;
+    }
+
+    public String getCurrency()
+    {
+        return currency;
+    }
+
+    public PaymentType getType()
+    {
+        return type;
+    }
+
+    public PaymentStatus getStatus()
+    {
+        return status;
+    }
+
+    public boolean isExpired()
+    {
+        return expired;
+    }
+
+    public Map<String, String> getMetadata()
+    {
+        return metadata;
+    }
+
+    public String getInsertDate()
+    {
+        return insertDate;
+    }
+
+    public String getExpireDate()
+    {
+        return expireDate;
+    }
+
+    public String getExternalCode()
+    {
+        return externalCode;
+    }
+
+    public String getRedirectUrl()
+    {
+        return redirectUrl;
+    }
+
+    public boolean isStatusOwnership()
+    {
+        return statusOwnership;
+    }
+
+    public Actor getStatusOwner()
+    {
+        return statusOwner;
+    }
+
+    public Actor getReceiver()
+    {
+        return receiver;
+    }
+
+    public Actor getSender()
+    {
+        return sender;
+    }
 }
