@@ -19,6 +19,7 @@ import net.unknowndomain.satisj.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,6 +108,7 @@ public abstract class SatisApi {
         {
             JSON_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             JSON_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             CURRENCY_SHIFT = new HashMap<>();
             registerCurrency("DEFAULT", 2);
             registerCurrency("EUR", 2);

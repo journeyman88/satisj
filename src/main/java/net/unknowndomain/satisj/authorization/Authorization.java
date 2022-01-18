@@ -15,6 +15,7 @@
  */
 package net.unknowndomain.satisj.authorization;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 import net.unknowndomain.satisj.common.SatisJsonObject;
@@ -23,6 +24,7 @@ import net.unknowndomain.satisj.common.SatisJsonObject;
  *
  * @author journeyman
  */
+@JsonIgnoreProperties
 public class Authorization extends SatisJsonObject
 {
     @JsonProperty("id")

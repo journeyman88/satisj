@@ -15,6 +15,7 @@
  */
 package net.unknowndomain.satisj.consumer;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.unknowndomain.satisj.common.SatisJsonObject;
 
@@ -22,6 +23,7 @@ import net.unknowndomain.satisj.common.SatisJsonObject;
  *
  * @author journeyman
  */
+@JsonIgnoreProperties
 public class Consumer extends SatisJsonObject
 {
     @JsonProperty("id")

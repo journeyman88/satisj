@@ -16,7 +16,9 @@
 package net.unknowndomain.satisj.payment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
 import java.util.Map;
 import net.unknowndomain.satisj.common.SatisJsonObject;
 
@@ -24,6 +26,7 @@ import net.unknowndomain.satisj.common.SatisJsonObject;
  *
  * @author journeyman
  */
+@JsonIgnoreProperties
 public class Payment extends SatisJsonObject
 {
 
@@ -49,11 +52,11 @@ public class Payment extends SatisJsonObject
     @JsonProperty("metadata")
     private Map<String, String> metadata;
     @JsonProperty("insert_date")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "UTC")
-    private String insertDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Date insertDate;
     @JsonProperty("expire_date")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "UTC")
-    private String expireDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Date expireDate;
     @JsonProperty("external_code")
     private String externalCode;
     @JsonProperty("redirect_url")
@@ -112,12 +115,12 @@ public class Payment extends SatisJsonObject
         return metadata;
     }
 
-    public String getInsertDate()
+    public Date getInsertDate()
     {
         return insertDate;
     }
 
-    public String getExpireDate()
+    public Date getExpireDate()
     {
         return expireDate;
     }

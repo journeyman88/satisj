@@ -68,6 +68,7 @@ public class SatisAsyncClient extends SatisApi {
             httpClient.start();
             String body = call.getBody();
             AsyncRequestBuilder bld = AsyncRequestBuilder.create(call.getMethod());
+            bld.setUri(call.getUrl(env).toString());
             Map<String, String> headers = prepareHeaders(call, body);
             for (String key : headers.keySet())
             {

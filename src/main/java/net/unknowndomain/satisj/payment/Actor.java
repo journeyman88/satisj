@@ -15,12 +15,14 @@
  */
 package net.unknowndomain.satisj.payment;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
  * @author journeyman
  */
+@JsonIgnoreProperties
 public class Actor
 {
     @JsonProperty("id")

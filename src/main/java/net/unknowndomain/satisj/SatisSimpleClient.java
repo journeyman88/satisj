@@ -28,6 +28,7 @@ import net.unknowndomain.satisj.auth.SatisAuth;
 import net.unknowndomain.satisj.common.SatisApi;
 import net.unknowndomain.satisj.common.SatisApiException;
 import net.unknowndomain.satisj.common.SatisError;
+import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -60,6 +61,7 @@ public class SatisSimpleClient extends SatisApi {
             {
                 bld.addHeader(key, headers.get(key));
             }
+            bld.setUri(call.getUrl(env).toString());
             bld.setEntity(body, ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8));
             ClassicHttpResponse resp = httpClient.execute(bld.build());
             try (InputStream bodyStream = resp.getEntity().getContent())
@@ -68,7 +70,10 @@ public class SatisSimpleClient extends SatisApi {
                 {
                     retVal = Tools.JSON_MAPPER.readValue(bodyStream, clazz);
                 }
-                throw new SatisApiException(Tools.JSON_MAPPER.readValue(bodyStream, SatisError.class));
+                else
+                {
+                    throw new SatisApiException(Tools.JSON_MAPPER.readValue(bodyStream, SatisError.class));
+                }
             }
         } 
         catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | IOException ex)

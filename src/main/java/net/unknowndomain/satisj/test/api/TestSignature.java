@@ -18,7 +18,7 @@ package net.unknowndomain.satisj.test.api;
 import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.common.SatisApiCall;
 import net.unknowndomain.satisj.common.SatisApi;
-import net.unknowndomain.satisj.consumer.Consumer;
+import net.unknowndomain.satisj.test.TestResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author journeyman
  */
-public class TestSignature extends SatisApiCall<Consumer> {
+public class TestSignature extends SatisApiCall<TestResults> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(TestSignature.class);
     
     public TestSignature(SatisApi api)
     {
-        super(api, Consumer.class);
+        super(api, TestResults.class);
     }
     
     @Override
