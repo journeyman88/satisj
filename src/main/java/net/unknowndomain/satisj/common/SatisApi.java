@@ -35,7 +35,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import net.unknowndomain.satisj.auth.SatisAuth;
 import net.unknowndomain.satisj.authorization.api.CreateAuthorizationBuilder;
 import net.unknowndomain.satisj.authorization.api.GetAuthorizationBuilder;
@@ -203,7 +205,8 @@ public abstract class SatisApi {
     }
     
     protected abstract <T> T execCall(SatisApiCall call, Class<T> clazz);
-    protected abstract <T> Future <T> queueCall(SatisApiCall call, Class<T> clazz);
+    protected abstract <T> Future<T> queueCall(SatisApiCall call, Class<T> clazz);
+    protected abstract <T> Callable <T> buildCall(SatisApiCall call, Class<T> clazz);
     
     protected Map<String,String> prepareHeaders(SatisApiCall call, String body) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException
     {
