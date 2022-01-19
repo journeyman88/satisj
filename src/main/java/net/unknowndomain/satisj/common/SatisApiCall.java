@@ -16,6 +16,7 @@
 package net.unknowndomain.satisj.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.reactivex.Observable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
@@ -64,6 +65,11 @@ public abstract class SatisApiCall<T extends SatisJsonObject> {
     public Future <T> queue() throws SatisApiException
     {
         return api.queueCall(this, clazz);
+    }
+    
+    public Observable<T> call()
+    {
+        return Observable.fromCallable(api.buildCall(this, clazz));
     }
     
 }
