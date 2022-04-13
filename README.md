@@ -27,7 +27,7 @@ SatisJ can store a created KeyPair, alongside its KeyID, for future usage once c
 ```java
 SatisAuth auth = SatisAuth.generateAuth(Environment.STAGING, "myAuthToken");
 Properties authStoreProps = new Properties();
-Path authStoreDir = Paths.get("file:///path/to/authStore/");
+Path authStoreDir = Paths.get("/path/to/authStore/");
 auth.saveToProperties(authStoreProps);
 auth.saveToDir(authStoreDir);
 ```
@@ -40,4 +40,36 @@ To load a previously stored KeyPair you shoul call the "SatisAuth.loadAuth" stat
 ```java
 SatisAuth authFromProps = SatisAuth.loadAuth(authStoreProps);
 SatisAuth authFromDir = SatisAuth.loadAuth(authStoreDir);
-``
+```
+
+## Client
+Once you have a valid SatisAuth object you can create a SatisApi client to interface yourself with the APIs.
+Currently there are 2 implementations of the client: SatisSimpleClient which internally uses Apache HttpCore in synchronous mode and an experimental SatisAsyncClient which uses the HttpCore async api.
+
+```java
+SatisApi client = new SatisSimpleClient(Environment.STAGING, auth);
+```
+
+From the client you can obtain the builders from which the calls are handled.
+The model adopted by SatisJ - from which any API operation works - is one decribed by "Builder -> Call -> Result":
+ - You use a SatisCallBuilder to configure the call parameters and build a SatisApiCall object.
+ - The SatisApiCall is unmodifiable and has an IdempotencyKey associated, to allow the server to correctly handle duplicate operation.
+ - The operation described by SatisApiCall can be launched (even several times) using one of three possibile modes:
+   - execute(): Synchronus mode: result in a SatisJsonObject.
+   - queue(): Asynchronus mode: result in a Future<SatisJsonObject>.
+   - call(): Reactive mode: result in an Observable<SatisJsonObject>.
+
+### Customer API
+On this API endpoint only the retrive operation is available. 
+```java
+RetrieveConsumerBuilder retriveOpBuilder = client.consumer().retrieve();
+retriveOpBuilder.phoneNumber("+390000000000");
+RetrieveConsumer retriveOp = retriveOpBuilder.build();
+Consumer consumerSync = retriveOp.execute();
+Future<Consumer> consumerFuture = retriveOp.queue();
+Observable<Consumer> consumerObs = retriveOp.call();
+```
+
+### Authorization API
+
+### Payment API
