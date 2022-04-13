@@ -15,7 +15,7 @@ This is handled by the SatisAuth class in SatisJ, which can be used to register 
 SatisJ is able to create a secure KeyPair to identify the user and register them thru the SatisPay environment.
 
 To create a new KeyPair simply use the static method "SatisAuth.generateAuth" selecting the correct environment ("STAGING" or "PRODUCTION") and the authToken associated with your business account.
-The generated KeyPair will be the RSA algorithm with a key length of 4096 bit. At the moment of writing this is a fixed value.
+The generated KeyPair will use the RSA algorithm with a key length of 4096 bit. At the moment of writing this is a fixed value.
 
 ```java
 SatisAuth auth = SatisAuth.generateAuth(Environment.STAGING, "myAuthToken");
