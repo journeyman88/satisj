@@ -19,7 +19,8 @@ import net.unknowndomain.satisj.common.SatisApi;
 import net.unknowndomain.satisj.common.SatisCallBuilder;
 
 /**
- *
+ * API call builder for Customer Retrieval
+ * 
  * @author journeyman
  */
 public class RetrieveConsumerBuilder extends SatisCallBuilder<RetrieveConsumer>
@@ -34,7 +35,7 @@ public class RetrieveConsumerBuilder extends SatisCallBuilder<RetrieveConsumer>
     /**
      * Sets the phone number for Customer Retrieval.
      * @param phoneNumber The phone number formatted with its prefix (eg. +390000000000)
-     * @return 
+     * @return this builder
      */
     public RetrieveConsumerBuilder phoneNumber(String phoneNumber)
     {

@@ -34,7 +34,7 @@ public abstract class SatisCallBuilder<T extends SatisApiCall>
     
     /**
      * Build the unmodifiable SatisApiCall object.
-     * @return 
+     * @return the SatisApiCall object
      */
     public abstract T build();
 }

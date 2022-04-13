@@ -23,7 +23,8 @@ import net.unknowndomain.satisj.common.SatisApi;
 import net.unknowndomain.satisj.common.SatisCallBuilder;
 
 /**
- *
+ * API call builder to initialize a Payment
+ * 
  * @author journeyman
  */
 public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
@@ -45,12 +46,24 @@ public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
         super(api);
     }
     
+    /**
+     * Selects the "MATCH_CODE" payment flow.
+     * @return this builder
+     */
     public CreatePaymentBuilder matchCode()
     {
         flow = "MATCH_CODE";
+        this.preAuthorizedPaymentsToken = null;
+        this.parentPaymentUid = null;
+        this.consumerUid = null;
         return this;
     }
     
+    /**
+     * Selects the "MATCH_USER" payment flow.
+     * @param consumerUid the user unique identifier, which can be retrieved by a call on Consumer API
+     * @return this builder
+     */
     public CreatePaymentBuilder matchUser(String consumerUid)
     {
         flow = "MATCH_USER";
@@ -60,6 +73,11 @@ public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
         return this;
     }
     
+    /**
+     * Selects the "REFUND" payment flow.
+     * @param parentPaymentUid the unique identifier of the Payment to be refunded.
+     * @return this builder
+     */
     public CreatePaymentBuilder refund(String parentPaymentUid)
     {
         flow = "REFUND";
@@ -69,6 +87,11 @@ public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
         return this;
     }
     
+    /**
+     * Selects the "PRE_AUTHORIZED" payment flow.
+     * @param preAuthorizedPaymentsToken the token of the pre-authorized transaction.
+     * @return this builder
+     */
     public CreatePaymentBuilder preAuthorized(String preAuthorizedPaymentsToken)
     {
         flow = "PRE_AUTHORIZED";
@@ -78,12 +101,38 @@ public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
         return this;
     }
     
+    /**
+     * Selects the "FUND_LOCK" payment flow.
+     * @return this builder
+     */
+    public CreatePaymentBuilder fundLock()
+    {
+        flow = "FUND_LOCK";
+        this.preAuthorizedPaymentsToken = null;
+        this.parentPaymentUid = null;
+        this.consumerUid = null;
+        return this;
+    }
+    
+    /**
+     * Sets the total amount of the transaction.
+     * @param amount Amount of the payment
+     * @return this builder
+     */
     public CreatePaymentBuilder amount(BigDecimal amount)
     {
         this.amount = amount;
         return this;
     }
     
+    
+    /**
+     * Sets the currency of the transaction.
+     * The currency is both  required by the Satispay system and by the internal converters to
+     * obtain the minimal unit to convert the amount.
+     * @param currency Currency of the payment (only EUR currently supported)
+     * @return this builder
+     */
     public CreatePaymentBuilder currency(String currency)
     {
         this.currency = currency;
@@ -92,8 +141,7 @@ public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
     
     /**
      * Sets the externalCode of the CreatePayment.
-     * Order ID or payment external identifier (max length allowed is 50 chars).
-     * @param externalCode
+     * @param externalCode Order ID or payment external identifier (max length allowed is 50 chars).
      * @return this builder.
      */
     public CreatePaymentBuilder externalCode(String externalCode)
@@ -107,7 +155,7 @@ public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
      * The url that will be called with an http GET request when the payment changes state. 
      * When url is called a Get payment details can be called to know the new Payment status. 
      * Note that {uuid} will be replaced with the Payment ID
-     * @param callbackUrl
+     * @param callbackUrl the callbackUrl, which should contain the {uuid} token
      * @return this builder.
      */
     public CreatePaymentBuilder callbackUrl(String callbackUrl)
@@ -118,8 +166,7 @@ public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
     
     /**
      * Sets the redirectUrl of the CreatePayment.
-     * The url to redirect the user after the payment flow is completed.
-     * @param redirectUrl
+     * @param redirectUrl The url to redirect the user after the payment flow is completed.
      * @return this builder.
      */
     public CreatePaymentBuilder redirectUrl(String redirectUrl)
@@ -128,12 +175,23 @@ public class CreatePaymentBuilder extends SatisCallBuilder<CreatePayment>
         return this;
     }
     
+    /**
+     * Sets the transaction's expiration date of the CreatePayment.
+     * The url to redirect the user after the payment flow is completed.
+     * @param expirationDate The expiration date of the payment
+     * @return this builder.
+     */
     public CreatePaymentBuilder expirationDate(Date expirationDate)
     {
         this.expirationDate = expirationDate;
         return this;
     }
     
+    /**
+     * Sets the metadata field.
+     * @param metadata Generic field that can be used to store generic info. The field phone_number can be used to pre-fill the mobile number.
+     * @return this builder.
+     */
     public CreatePaymentBuilder metadata(Map<String,String> metadata)
     {
         this.metadata = new HashMap<>();

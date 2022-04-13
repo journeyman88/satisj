@@ -57,16 +57,31 @@ public abstract class SatisApiCall<T extends SatisJsonObject> {
         return new URL(env.getEndpoint().getProtocol(), env.getEndpoint().getHost(), getEndpoint(env));
     }
     
+    /**
+     * Execute the API call in synchronous mode
+     * @return the call result
+     * @throws SatisApiException 
+     */
     public T execute() throws SatisApiException
     {
         return api.execCall(this, clazz);
     }
     
+    /**
+     * Queue the API to be called in asynchronous mode
+     * @return a Future containing the call result
+     * @throws SatisApiException 
+     */
     public Future <T> queue() throws SatisApiException
     {
         return api.queueCall(this, clazz);
     }
     
+    /**
+     * Wrap the the API call in a Reactive Observable
+     * @return an Observable that represents the API call.
+     * @throws SatisApiException 
+     */
     public Observable<T> call()
     {
         return Observable.fromCallable(api.buildCall(this, clazz));
