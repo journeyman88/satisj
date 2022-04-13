@@ -17,9 +17,15 @@ SatisJ is able to create a secure KeyPair to identify the user and register them
 To create a new KeyPair simply use the static method "SatisAuth.generateAuth" selecting the correct environment ("STAGING" or "PRODUCTION") and the authToken associated with your business account.
 The generated KeyPair will be the RSA algorithm with a key length of 4096 bit. At the moment of writing this is a fixed value.
 
+```java
+    SatisAuth auth = SatisAuth.generateAuth(Environment.STAGING, "myAuthToken");
+```
+
+### Store a Keypair
+SatisJ can store a created KeyPair, alongside its KeyID, for future usage once created.
+
 ### Load a Keypair
 SatisJ can load a previously created KeyPair, alongside its KeyID, to be used on API calls.
 
 To load a previously stored KeyPair you shoul call the "SatisAuth.loadAuth" static method, to which should be passed a Properties object or a Path object.
-
 
