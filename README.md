@@ -18,14 +18,26 @@ To create a new KeyPair simply use the static method "SatisAuth.generateAuth" se
 The generated KeyPair will be the RSA algorithm with a key length of 4096 bit. At the moment of writing this is a fixed value.
 
 ```java
-    SatisAuth auth = SatisAuth.generateAuth(Environment.STAGING, "myAuthToken");
+SatisAuth auth = SatisAuth.generateAuth(Environment.STAGING, "myAuthToken");
 ```
 
 ### Store a Keypair
 SatisJ can store a created KeyPair, alongside its KeyID, for future usage once created.
+
+```java
+SatisAuth auth = SatisAuth.generateAuth(Environment.STAGING, "myAuthToken");
+Properties authStoreProps = new Properties();
+Path authStoreDir = Paths.get("file:///path/to/authStore/");
+auth.saveToProperties(authStoreProps);
+auth.saveToDir(authStoreDir);
+```
 
 ### Load a Keypair
 SatisJ can load a previously created KeyPair, alongside its KeyID, to be used on API calls.
 
 To load a previously stored KeyPair you shoul call the "SatisAuth.loadAuth" static method, to which should be passed a Properties object or a Path object.
 
+```java
+SatisAuth authFromProps = SatisAuth.loadAuth(authStoreProps);
+SatisAuth authFromDir = SatisAuth.loadAuth(authStoreDir);
+``
