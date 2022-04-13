@@ -97,34 +97,46 @@ public abstract class SatisApi {
      */
     public static void registerCurrency(String currencyCode, int shift)
     {
-        Tools.registerCurrency(currencyCode, shift);
+        Tools.registerCurrency(currencyCode, new ShiftAUConverter(shift));
+    }
+    
+    /**
+     * Register a new currency and sets the appropriate custom converter.
+     * 
+     * @param currencyCode
+     * @param converter 
+     */
+    public static void registerCurrency(String currencyCode, AmountUnitsConverter converter)
+    {
+        Tools.registerCurrency(currencyCode, converter);
     }
     
     public static class Tools
     {
         public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
         public static final FastDateFormat SIGN_DATE_FORMAT = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss Z");
-        private static Map<String, Integer> CURRENCY_SHIFT = new HashMap<>();
+        private static Map<String, AmountUnitsConverter> CURRENCY_CONVERTER = new HashMap<>();
 
         static
         {
             JSON_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
             JSON_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            CURRENCY_SHIFT = new HashMap<>();
-            registerCurrency("DEFAULT", 2);
-            registerCurrency("EUR", 2);
+            CURRENCY_CONVERTER = new HashMap<>();
+            AmountUnitsConverter eurDefault = new ShiftAUConverter(2);
+            registerCurrency("DEFAULT", eurDefault);
+            registerCurrency("EUR", eurDefault);
         }
         
-        private static void registerCurrency(String currencyCode, int shift)
+        private static void registerCurrency(String currencyCode, AmountUnitsConverter converter)
         {
             if (currencyCode != null)
             {
                 String curr = currencyCode.toUpperCase();
-                Map<String, Integer> cs = new HashMap<>();
-                cs.putAll(CURRENCY_SHIFT);
-                cs.put(curr, shift);
-                CURRENCY_SHIFT = Collections.unmodifiableMap(cs);
+                Map<String, AmountUnitsConverter> cs = new HashMap<>();
+                cs.putAll(CURRENCY_CONVERTER);
+                cs.put(curr, converter);
+                CURRENCY_CONVERTER = Collections.unmodifiableMap(cs);
             }
         }
 
@@ -136,11 +148,11 @@ public abstract class SatisApi {
         public static Long getUnits(String currencyCode, BigDecimal amount)
         {
             String curr = currencyCode;
-            if ((curr == null) || (!CURRENCY_SHIFT.containsKey(curr)))
+            if ((curr == null) || (!CURRENCY_CONVERTER.containsKey(curr)))
             {
                 curr = "DEFAULT";
             }
-            return amount.movePointRight(CURRENCY_SHIFT.get(curr)).longValue();
+            return CURRENCY_CONVERTER.get(curr).getUnits(amount);
         }
     }
 
@@ -289,7 +301,7 @@ public abstract class SatisApi {
             this.api = api;
         }
         
-        public RetrieveConsumerBuilder create()
+        public RetrieveConsumerBuilder retrieve()
         {
             return new RetrieveConsumerBuilder(api);
         }

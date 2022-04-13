@@ -71,5 +71,7 @@ Observable<Consumer> consumerObs = retriveOp.call();
 ```
 
 ### Authorization API
+This API endpoint handles the Pre-Authorization token workflow, such as create a token, associate a token with a cusomer and retrive the token status.
 
 ### Payment API
+This API endpoint handles the Payment workflow, such as create a payment, retrive the payment details and update a payment.
