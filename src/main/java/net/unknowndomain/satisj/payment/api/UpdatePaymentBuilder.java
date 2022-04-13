@@ -38,42 +38,75 @@ public class UpdatePaymentBuilder extends SatisCallBuilder<UpdatePayment>
     private String id = "";
     private Map<String, String> metadata = new HashMap<>();
     
+    /**
+     * Selects the "ACCEPT" action.
+     * @return this builder
+     */
     public UpdatePaymentBuilder accept()
     {
         action = "ACCEPT";
         return this;
     }
     
+    /**
+     * Selects the "CANCEL" action.
+     * @return this builder
+     */
     public UpdatePaymentBuilder cancel()
     {
         action = "CANCEL";
         return this;
     }
     
+    /**
+     * Selects the "CANCEL_OR_REFUND" action.
+     * @return this builder
+     */
     public UpdatePaymentBuilder cancelOrRefund()
     {
         action = "CANCEL_OR_REFUND)";
         return this;
     }
     
+    /**
+     * Identifies the Payment to be updated
+     * @param id The id of the payment to update
+     * @return this builder
+     */
     public UpdatePaymentBuilder preAuthorized(String id)
     {
         this.id = id;
         return this;
     }
     
+    /**
+     * Sets the total amount of the transaction when using the FUND_LOCK flow.
+     * @param amount Amount of the payment
+     * @return this builder
+     */
     public UpdatePaymentBuilder amount(BigDecimal amount)
     {
         this.amount = amount;
         return this;
     }
     
+    /**
+     * Sets the currency of the transaction when using the FUND_LOCK flow.
+     * The currency is used by the internal converters to obtain the minimal unit to convert the amount.
+     * @param currency Currency of the payment (only EUR currently supported)
+     * @return this builder
+     */
     public UpdatePaymentBuilder currency(String currency)
     {
         this.currency = currency;
         return this;
     }
     
+    /**
+     * Sets the metadata field.
+     * @param metadata Generic field that can be used to store the order_id.
+     * @return 
+     */
     public UpdatePaymentBuilder metadata(Map<String,String> metadata)
     {
         this.metadata = new HashMap<>();

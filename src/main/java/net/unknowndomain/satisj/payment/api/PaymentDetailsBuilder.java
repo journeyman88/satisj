@@ -19,7 +19,8 @@ import net.unknowndomain.satisj.common.SatisApi;
 import net.unknowndomain.satisj.common.SatisCallBuilder;
 
 /**
- *
+ * API call builder to retrieve a Payment
+ * 
  * @author journeyman
  */
 public class PaymentDetailsBuilder extends SatisCallBuilder<PaymentDetails>
