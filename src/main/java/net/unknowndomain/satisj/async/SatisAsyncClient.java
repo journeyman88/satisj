@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import net.unknowndomain.satisj.Environment;
 import net.unknowndomain.satisj.auth.SatisAuth;
 import net.unknowndomain.satisj.common.SatisApi;

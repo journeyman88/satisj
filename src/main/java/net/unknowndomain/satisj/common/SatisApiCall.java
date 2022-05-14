@@ -16,7 +16,7 @@
 package net.unknowndomain.satisj.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
